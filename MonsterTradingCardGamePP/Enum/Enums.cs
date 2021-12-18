@@ -27,7 +27,6 @@ namespace MonsterTradingCardGamePP.Enum
         Ork,
         Knight,
         Kraken,
-        Elf,
-        NULL
+        Elf
     }
 }

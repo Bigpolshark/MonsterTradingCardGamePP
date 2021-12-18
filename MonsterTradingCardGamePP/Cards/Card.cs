@@ -15,8 +15,8 @@ namespace MonsterTradingCardGamePP.Cards
 
         public int CardID { get; } //only used when getting Card from Database, may be needed for Trading etc ? Not sure, but to be safe for later 
         public CardType CardType { get; } //Monster/Spell, for easier differentation
-        public Element Element { get; }
         public MonsterType? MonsterType { get; } //? ==> nullable ==> can be NULL
+        public Element Element { get; }
         public string Name { get; } //custom Name of Card
         public int Damage { get; }
 
@@ -26,12 +26,12 @@ namespace MonsterTradingCardGamePP.Cards
         //its (post-calculation) damage value reduced
         public int Exhaustion { get; } //no setter, can only be increased by one with function increaseExhaustion(), and after battle the battleDeck with the exausted card is thrown out anyway
 
-        public Card(int cardID, CardType cardType, Element element, MonsterType? monsterType, string name, int damage)
+        public Card(int cardID, CardType cardType, MonsterType? monsterType, Element element,  string name, int damage)
         {
             CardID = cardID;
             CardType = cardType;
-            Element = element;
             MonsterType = monsterType;
+            Element = element;
             Name = name;
             Damage = damage;
             Exhaustion = 0;
