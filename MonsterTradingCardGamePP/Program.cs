@@ -6,16 +6,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MonsterTradingCardGamePP.Misc;
 
 namespace MonsterTradingCardGamePP
 {
     class Program
     {
+        public static List<Card> AllCards;
+
         static void Main(string[] args)
         {
             //stay in loop, until either login, Registration or exit
-            Player currentPlayer = null;
-            while(currentPlayer == null)
+            Player currentPlayer = null; //sets current Player for the future
+            string input;
+
+            //get All cards that exist in the DB for easier handling
+            AllCards = DB.getInstance().getAllCardsFromDB();
+
+            while (currentPlayer == null)
             {
                 Console.WriteLine("Willkommen beim MonsterTradingCardGamePP !");
                 Console.WriteLine("Um eine Funktion zu wählen, geben Sie bitte die zugehörige Zahl an!");
@@ -23,7 +31,7 @@ namespace MonsterTradingCardGamePP
                 Console.WriteLine("2 - Neues Profil erstellen");
                 Console.WriteLine("3 - Programm Beenden\n");
 
-                string input = Console.ReadLine();
+                input = Console.ReadLine();
 
                 switch(input)
                 {
@@ -38,15 +46,43 @@ namespace MonsterTradingCardGamePP
                     case "3": return;
                     default: Console.WriteLine("Bitte geben Sie einen der oben gegebenen Werte an!\n"); break;
                 }
+            }
+
+            input = "";
+            while(input != "9")
+            {
+                Console.Clear();
+                Console.WriteLine($"Eingeloggt als User {currentPlayer.Username}\n");
+
+                Console.WriteLine("Was wollen Sie tun ?");
+                Console.WriteLine("\n1 - Stack ansehen");
+                Console.WriteLine("2 - Deck verwalten");                
+                Console.WriteLine("8 - Karten Shop");
+                Console.WriteLine("9 - Programm Beenden\n");
+
+                input = Console.ReadLine();
+
+                switch (input)
+                {
+                    case "1":
+                        //Stack ansehen
+                        currentPlayer.showStack();
+                        Output.confirm();
+                        break;
+                    case "2":
+                        //Deck verwalten
+                        currentPlayer.manageDeck();
+                        break;              
+                    case "8":
+                        //Karten Shop
+                        Shop.openShop(currentPlayer);
+                        break;
+                    case "9": break;
+                    default: Console.WriteLine("Bitte geben Sie einen der oben gegebenen Werte an!\n"); break;
+                }
 
 
             }
-
-            Console.Clear();
-            Console.WriteLine("drinnen\n");
-            Console.WriteLine(currentPlayer.Username);
-            Console.WriteLine(currentPlayer.AuthToken);
-
 
 
 
@@ -85,7 +121,7 @@ namespace MonsterTradingCardGamePP
 
         */
             //remove later
-            Console.WriteLine("Press enter to close...");
+            Console.WriteLine("\nDruecke Enter um fortzufahren");
             Console.ReadLine();
         }
 

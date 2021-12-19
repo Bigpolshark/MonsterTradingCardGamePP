@@ -36,6 +36,18 @@ namespace MonsterTradingCardGamePP.Cards
             Damage = damage;
             Exhaustion = 0;
         }
+
+        //copy constructor
+        public Card(Card referenceCard)
+        {
+            CardID = referenceCard.CardID;
+            CardType = referenceCard.CardType;
+            MonsterType = referenceCard.MonsterType;
+            Element = referenceCard.Element;
+            Name = referenceCard.Name;
+            Damage = referenceCard.Damage;
+            Exhaustion = referenceCard.Exhaustion;
+        }
     }
 
 }

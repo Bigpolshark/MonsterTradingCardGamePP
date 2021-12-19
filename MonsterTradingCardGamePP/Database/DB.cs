@@ -1,4 +1,5 @@
 ﻿using MonsterTradingCardGamePP.Cards;
+using MonsterTradingCardGamePP.Enum;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -132,13 +133,175 @@ namespace MonsterTradingCardGamePP.Database
                 if (reader.HasRows)
                 {
                     reader.Read();
-                    tempPlayer = new Player(reader["username"].ToString(), reader["authtoken"].ToString(), (int)reader["coins"], (int)reader["elo"]);
+                    tempPlayer = new Player((int)reader["id"], reader["username"].ToString(), reader["authtoken"].ToString(), (int)reader["coins"], (int)reader["elo"]);
                 }
 
                 Disconnect();
                 return tempPlayer;
             }
-        }        
+        }          
+        public List<Card> getAllCardsFromDB()
+        {
+            Connect();
+            using (var sql = new NpgsqlCommand("SELECT * FROM cards ORDER BY cardid ASC", Connection))
+            {
+                NpgsqlDataReader reader = sql.ExecuteReader();
 
+                List<Card> cardList = null;
+
+                if (reader.HasRows)
+                {
+                    cardList = new List<Card>();
+                    while (reader.Read())
+                    {
+                        if(reader["monstertype"].ToString() != "")
+                            cardList.Add(new Card((int)reader["cardid"], (CardType)System.Enum.Parse(typeof(CardType),reader["cardtype"].ToString()), (MonsterType?)System.Enum.Parse(typeof(MonsterType), reader["monstertype"].ToString()), (Element)System.Enum.Parse(typeof(Element), reader["element"].ToString()), reader["name"].ToString(), (int)reader["damage"]));
+                        else
+                            cardList.Add(new Card((int)reader["cardid"], (CardType)System.Enum.Parse(typeof(CardType),reader["cardtype"].ToString()), null, (Element)System.Enum.Parse(typeof(Element), reader["element"].ToString()), reader["name"].ToString(), (int)reader["damage"]));
+                    }
+                }
+
+                Disconnect();
+                return cardList;
+            }
+        }         
+        public List<Card> getUserStack(int UserID)
+        {
+            Connect();
+            using (var sql = new NpgsqlCommand("SELECT cardid FROM playerstack WHERE playerID = @pID ORDER BY cardid ASC", Connection))
+            {
+                sql.Parameters.AddWithValue("pID", UserID);
+                NpgsqlDataReader reader = sql.ExecuteReader();
+
+                List<Card> cardList = null;
+
+                if (reader.HasRows)
+                {
+                    cardList = new List<Card>();
+                    while (reader.Read())
+                    {
+                        cardList.Add(new Card(Program.AllCards[(int)reader["cardid"]-1]));
+                    }
+                    
+                }
+
+                Disconnect();
+                return cardList;
+            }
+        }     
+        
+        public void buyPack(int id)
+        {
+            Connect();
+            using (var sql = new NpgsqlCommand("UPDATE player SET coins = coins - 5 WHERE id = @id", Connection))
+            {
+                sql.Parameters.AddWithValue("id", id);
+                sql.ExecuteNonQuery();
+            }
+            Disconnect();
+        }
+
+        public void addToStack(int cardID, int playerID)
+        {
+            Connect();
+            using (var sql = new NpgsqlCommand("INSERT INTO playerstack (playerid, cardid) VALUES (@pID, @cID)", Connection))
+            {
+                sql.Parameters.AddWithValue("pID", playerID);
+                sql.Parameters.AddWithValue("cID", cardID);
+                sql.ExecuteNonQuery();
+            }
+            Disconnect();
+        }
+
+        public int getCoins(int id)
+        {
+            Connect();
+            using (var sql = new NpgsqlCommand("SELECT coins FROM player WHERE id = @id", Connection))
+            {
+                sql.Parameters.AddWithValue("id", id);
+                NpgsqlDataReader reader = sql.ExecuteReader();
+
+                int coins = 0;
+
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    coins = (int)reader["coins"];
+                }
+
+                Disconnect();
+                return coins;
+            }
+        }
+
+        public List<Card> getUserDeck(int UserID)
+        {
+            Connect();
+            using (var sql = new NpgsqlCommand("SELECT cardid FROM playerdeck WHERE playerid = @pID ORDER BY cardid ASC", Connection))
+            {
+                sql.Parameters.AddWithValue("pID", UserID);
+                NpgsqlDataReader reader = sql.ExecuteReader();
+
+                List<Card> cardList = null;
+
+                if (reader.HasRows)
+                {
+                    cardList = new List<Card>();
+                    while (reader.Read())
+                    {
+                        cardList.Add(new Card(Program.AllCards[(int)reader["cardid"]-1]));
+                    }
+
+                }
+
+                Disconnect();
+                return cardList;
+            }
+        }
+
+        public void addToDeck(int cardID, int playerID)
+        {
+            //add to Deck
+            Connect();
+            using (var sql = new NpgsqlCommand("INSERT INTO playerdeck (playerid, cardid) VALUES (@pID, @cID)", Connection))
+            {
+                sql.Parameters.AddWithValue("pID", playerID);
+                sql.Parameters.AddWithValue("cID", cardID);
+                sql.ExecuteNonQuery();
+            }
+            Disconnect();
+
+            //remove from Stack
+            Connect();
+            using (var sql = new NpgsqlCommand("DELETE FROM playerstack WHERE number IN(SELECT number FROM playerstack WHERE cardid = @cID LIMIT 1)", Connection))
+            {
+                sql.Parameters.AddWithValue("cID", cardID);
+                sql.ExecuteNonQuery();
+            }
+            Disconnect();
+        }
+
+        public void removeFromDeck(int cardID, int playerID)
+        {
+            //add to Stack
+            Connect();
+            using (var sql = new NpgsqlCommand("INSERT INTO playerstack (playerid, cardid) VALUES (@pID, @cID)", Connection))
+            {
+                sql.Parameters.AddWithValue("pID", playerID);
+                sql.Parameters.AddWithValue("cID", cardID);
+                sql.ExecuteNonQuery();
+            }
+            Disconnect();
+
+            //remove from Deck
+            Connect();
+            using (var sql = new NpgsqlCommand("DELETE FROM playerdeck WHERE cardid = @cID AND playerid = @pID", Connection))
+            {
+                sql.Parameters.AddWithValue("cID", cardID);
+                sql.Parameters.AddWithValue("pID", playerID);
+                sql.ExecuteNonQuery();
+            }
+            Disconnect();
+        }
     }
 }
