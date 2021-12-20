@@ -101,6 +101,7 @@ namespace MonsterTradingCardGamePP.Database
                 return false; //User does not exist
             }
         }
+
         //only used to automatically add cards to DB, only left if Cards need to be added later
         /*
         public void AddCardToDB(Card card)
@@ -180,7 +181,7 @@ namespace MonsterTradingCardGamePP.Database
                     cardList = new List<Card>();
                     while (reader.Read())
                     {
-                        cardList.Add(new Card(Program.AllCards[(int)reader["cardid"]-1]));
+                        cardList.Add(new Card(getCardFromID((int)reader["cardid"])));
                     }
                     
                 }
@@ -273,9 +274,10 @@ namespace MonsterTradingCardGamePP.Database
 
             //remove from Stack
             Connect();
-            using (var sql = new NpgsqlCommand("DELETE FROM playerstack WHERE number IN(SELECT number FROM playerstack WHERE cardid = @cID LIMIT 1)", Connection))
+            using (var sql = new NpgsqlCommand("DELETE FROM playerstack WHERE number IN(SELECT number FROM playerstack WHERE cardid = @cID AND playerid = @pID LIMIT 1)", Connection))
             {
                 sql.Parameters.AddWithValue("cID", cardID);
+                sql.Parameters.AddWithValue("pID", playerID);
                 sql.ExecuteNonQuery();
             }
             Disconnect();
@@ -302,6 +304,96 @@ namespace MonsterTradingCardGamePP.Database
                 sql.ExecuteNonQuery();
             }
             Disconnect();
+        }
+
+        public Card getCardFromID(int cardID)
+        {
+            Connect();
+            using (var sql = new NpgsqlCommand("SELECT * FROM cards WHERE cardid = @cID", Connection))
+            {
+                sql.Parameters.AddWithValue("cID", cardID);
+                NpgsqlDataReader reader = sql.ExecuteReader();
+
+                Card tempCard = null;
+
+                if (reader.HasRows)
+                {
+                    reader.Read();
+
+                    if (reader["monstertype"].ToString() != "")
+                        tempCard = new Card((int)reader["cardid"], (CardType)System.Enum.Parse(typeof(CardType), reader["cardtype"].ToString()), (MonsterType?)System.Enum.Parse(typeof(MonsterType), reader["monstertype"].ToString()), (Element)System.Enum.Parse(typeof(Element), reader["element"].ToString()), reader["name"].ToString(), (int)reader["damage"]);
+                    else
+                        tempCard = new Card((int)reader["cardid"], (CardType)System.Enum.Parse(typeof(CardType), reader["cardtype"].ToString()), null, (Element)System.Enum.Parse(typeof(Element), reader["element"].ToString()), reader["name"].ToString(), (int)reader["damage"]);
+                }
+                Disconnect();
+                return tempCard;
+            }
+        }
+
+        public List<potentialOpponent> getPotentialOpponents(int me)
+        {
+            List<potentialOpponent> list = null;
+
+            Connect();
+            using (var sql = new NpgsqlCommand("SELECT playerid FROM playerdeck WHERE NOT playerid = @pID GROUP BY playerid HAVING COUNT(playerid) = 4", Connection))
+            {
+                sql.Parameters.AddWithValue("pID", me);
+                NpgsqlDataReader reader = sql.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    list = new List<potentialOpponent>();
+
+                    while (reader.Read())
+                    {
+                        list.Add(new potentialOpponent((int)reader["playerid"], getUsernameByID((int)reader["playerid"])));
+                    }
+                }
+            }
+
+            Disconnect();
+            return list;
+        }
+
+        public string getUsernameByID(int id)
+        {
+            Connect();
+            using (var sql = new NpgsqlCommand("SELECT username FROM player WHERE id = @pID", Connection))
+            {
+                sql.Parameters.AddWithValue("pID", id);
+                NpgsqlDataReader reader = sql.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    string name = reader["username"].ToString();
+                    Disconnect();
+                    return name;
+                }
+
+                Disconnect();
+                return "ERROR: User could not be found"; //User does not exist
+            }
+        }        
+        public Player getUserByID(int id)
+        {
+            Connect();
+            using (var sql = new NpgsqlCommand("SELECT * FROM player WHERE id = @uID", Connection))
+            {
+                sql.Parameters.AddWithValue("uID", id);
+                NpgsqlDataReader reader = sql.ExecuteReader();
+
+                Player tempPlayer = null;
+
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    tempPlayer = new Player((int)reader["id"], reader["username"].ToString(), reader["authtoken"].ToString(), (int)reader["coins"], (int)reader["elo"]);
+                }
+
+                Disconnect();
+                return tempPlayer;
+            }
         }
     }
 }

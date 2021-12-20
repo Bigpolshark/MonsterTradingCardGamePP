@@ -132,12 +132,7 @@ namespace MonsterTradingCardGamePP
             //check if Stack is empty
             if (Stack == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("\nSie besitzen derzeit keine Karten!\nKaufen Sie sich am besten neue Kartenpakete im Karten Shop!\n");
-                Console.ResetColor();
-
-                Console.WriteLine("\nDruecke Enter um fortzufahren");
-                Console.ReadLine();
+                Output.errorOutputCustom("Sie besitzen derzeit keine Karten!\nKaufen Sie sich am besten neue Kartenpakete im Karten Shop!");
 
                 return;
             }
@@ -224,6 +219,12 @@ namespace MonsterTradingCardGamePP
                 }
 
             showStack();
+
+            if (Stack == null)
+            {
+                Output.confirm();
+                return;
+            }
 
             Console.WriteLine("\nWelche Karte aus ihrem Stack wollen Sie ihrem Deck hinzufügen? Geben Sie bitte die 'Position' an!");
 

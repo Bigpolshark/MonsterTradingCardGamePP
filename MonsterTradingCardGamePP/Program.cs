@@ -44,7 +44,10 @@ namespace MonsterTradingCardGamePP
                         currentPlayer = Player.register();
                         break;
                     case "3": return;
-                    default: Console.WriteLine("Bitte geben Sie einen der oben gegebenen Werte an!\n"); break;
+                    default: 
+                        Output.errorOutputWrongSelection();
+                        Output.confirm();
+                        break;
                 }
             }
 
@@ -56,7 +59,8 @@ namespace MonsterTradingCardGamePP
 
                 Console.WriteLine("Was wollen Sie tun ?");
                 Console.WriteLine("\n1 - Stack ansehen");
-                Console.WriteLine("2 - Deck verwalten");                
+                Console.WriteLine("2 - Deck verwalten"); 
+                Console.WriteLine("3 - Start Random Battle");                
                 Console.WriteLine("8 - Karten Shop");
                 Console.WriteLine("9 - Programm Beenden\n");
 
@@ -72,7 +76,13 @@ namespace MonsterTradingCardGamePP
                     case "2":
                         //Deck verwalten
                         currentPlayer.manageDeck();
-                        break;              
+                        break;
+                    case "3":
+                        //Battle starten
+                        Battle currentBattle = Battle.setupBattle(currentPlayer);
+                        currentBattle.printLog();
+                        Output.confirm();
+                        break;
                     case "8":
                         //Karten Shop
                         Shop.openShop(currentPlayer);
