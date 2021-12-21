@@ -79,6 +79,18 @@ namespace MonsterTradingCardGamePP
                         break;
                     case "3":
                         //Battle starten
+                        if(currentPlayer.Deck == null)
+                        {
+                            Output.errorOutputCustom("Sie brauchen ein Deck mit 4 Karten um spielen zu koennen!");
+                            Output.confirm();
+                            break;
+                        }
+                        else if(currentPlayer.Deck.Count() != 4)
+                        {
+                            Output.errorOutputCustom("Sie brauchen ein Deck mit 4 Karten um spielen zu koennen!");
+                            Output.confirm();
+                            break;
+                        }
                         Battle currentBattle = Battle.setupBattle(currentPlayer);
                         currentBattle.printLog();
                         Output.confirm();

@@ -1,4 +1,5 @@
 ﻿using MonsterTradingCardGamePP.Enum;
+using MonsterTradingCardGamePP.Misc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace MonsterTradingCardGamePP.Cards
         public Element Element { get; }
         public string Name { get; } //custom Name of Card
         public int Damage { get; }
+        public Element Weakness { get; }
 
         //add Unique mechanic - exhaustion
         //Exhaustion occurs on a Monster card, after combat. One stack of exhaustion is added per combat.
@@ -35,6 +37,7 @@ namespace MonsterTradingCardGamePP.Cards
             Name = name;
             Damage = damage;
             Exhaustion = 0;
+            Weakness = getWeakness(element);
         }
 
         //copy constructor
@@ -47,6 +50,20 @@ namespace MonsterTradingCardGamePP.Cards
             Name = referenceCard.Name;
             Damage = referenceCard.Damage;
             Exhaustion = referenceCard.Exhaustion;
+            Weakness = referenceCard.Weakness;
+        }
+
+        private Element getWeakness(Element element)
+        {
+            switch(element)
+            {
+                case Element.Fire: return Element.Water;
+                case Element.Normal: return Element.Fire;
+                case Element.Water: return Element.Normal;
+            }
+
+            //only because I can't leave it empty, its not possible to get here, because the switch statement covers every possible Element
+            return Element.Normal;
         }
     }
 

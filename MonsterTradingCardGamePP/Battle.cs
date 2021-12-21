@@ -59,7 +59,7 @@ namespace MonsterTradingCardGamePP
             Output.confirm();
 
             //randomly choose Opponent
-            int random = RNG.getInstance().RandomNumber(0, potentialOpponents.Count()-1);
+            int random = RNG.getInstance().RandomNumber(0, potentialOpponents.Count());
             Player enemy = DB.getInstance().getUserByID(potentialOpponents[random].UserID);
             Console.WriteLine($"Folgender Gegner wurde ermittelt: {enemy.Username}");
             Console.WriteLine("Starte Battle gegen den ausgewaehlten User!");
