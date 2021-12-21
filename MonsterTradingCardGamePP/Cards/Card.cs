@@ -23,10 +23,11 @@ namespace MonsterTradingCardGamePP.Cards
         public Element Weakness { get; }
 
         //add Unique mechanic - exhaustion
-        //Exhaustion occurs on a Monster card, after combat. One stack of exhaustion is added per combat.
-        //During combat, the current exhaustion stacks are compared between the units, and depending on the difference, the more exhausted monster has 
+        //Exhaustion occurs on a Monster card, after combat. One stack of exhaustion is added to the winning card.
+        //During Monster only combat, the current exhaustion stacks are compared between the units, and depending on the difference, the more exhausted monster has 
         //its (post-calculation) damage value reduced
-        public int Exhaustion { get; } //no setter, can only be increased by one with function increaseExhaustion(), and after battle the battleDeck with the exausted card is thrown out anyway
+        //Exhaustion can be gained after spell combat, but only Monsters can gain stacks, and it only affects Monster vs Monster fights
+        public int Exhaustion { get; private set; } //no setter, can only be increased by one with function increaseExhaustion(), and after battle the battleDeck with the exausted card is thrown out anyway
 
         public Card(int cardID, CardType cardType, MonsterType? monsterType, Element element,  string name, int damage)
         {
@@ -64,6 +65,11 @@ namespace MonsterTradingCardGamePP.Cards
 
             //only because I can't leave it empty, its not possible to get here, because the switch statement covers every possible Element
             return Element.Normal;
+        }
+
+        public void increaseExhaustion()
+        {
+            Exhaustion++;
         }
     }
 

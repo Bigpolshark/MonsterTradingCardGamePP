@@ -37,19 +37,33 @@ namespace MonsterTradingCardGamePP
                 //check who won
                 if (damage1 > damage2)
                 {
+                    log.Add($"{player1.Username} has won this round!");
+                    log.Add($"{card1.Name} and {card2.Name} have been added to {player1.Username}'s deck!");
+
+                    if(card1.CardType == Enum.CardType.Monster)
+                    {
+                        card1.increaseExhaustion();
+                        log.Add($"{card1.Name} has gained 1 stack of Exhaustion from the win");
+                    }
+
                     //add both cards to player1
                     player1Deck.Add(new Card(card1));
                     player1Deck.Add(new Card(card2));
-                    log.Add($"{player1.Username} has won this round!");
-                    log.Add($"{card1.Name} and {card2.Name} have been added to {player1.Username}'s deck!");
                 }
                 else if(damage2 > damage1)
                 {
+                    log.Add($"{player2.Username} has won this round!");
+                    log.Add($"{card1.Name} and {card2.Name} have been added to {player2.Username}'s deck!");
+
+                    if (card2.CardType == Enum.CardType.Monster)
+                    {
+                        card2.increaseExhaustion();
+                        log.Add($"{card2.Name} has gained 1 stack of Exhaustion from the win");
+                    }
+
                     //add both cards to player2
                     player2Deck.Add(new Card(card1));
                     player2Deck.Add(new Card(card2));
-                    log.Add($"{player2.Username} has won this round!");
-                    log.Add($"{card1.Name} and {card2.Name} have been added to {player2.Username}'s deck!");
                 }
                 else //draw
                 {
@@ -129,7 +143,7 @@ namespace MonsterTradingCardGamePP
             else //monster only combat
             {
                 //normally nothing to calculate, but here comes the unique mechanic "exhaustion" to play
-                //damage = monsterCombat(ownCard, enemyCard, damage);
+                damage = monsterCombat(ownCard, enemyCard, damage);
             }
 
 
@@ -139,6 +153,7 @@ namespace MonsterTradingCardGamePP
 
             return damage;
         }
+
 
         private static int spellCombat(Card ownCard, Card enemyCard, int damage)
         {
@@ -158,6 +173,19 @@ namespace MonsterTradingCardGamePP
                 log.Add($"{ownCard.Name}'s damage is halved, because {enemyCard.Name} is resistant against {ownCard.Element}");
             }
 
+
+            return damage;
+        }
+        private static int monsterCombat(Card ownCard, Card enemyCard, int damage)
+        {
+            if(ownCard.Exhaustion > enemyCard.Exhaustion)
+            {
+                int difference = ownCard.Exhaustion - enemyCard.Exhaustion;
+                damage = (damage * (100 - 20 * difference)) / 100; //damage reduced by 20% per Stack difference, only written like that to not have to use double/float
+
+                log.Add($"{ownCard.Name} is more Exhausted than {enemyCard.Name} by {difference} Stacks");
+                log.Add($"{ownCard.Name}'s is reduced by {20*difference}% because of Exhaustion!");
+            }
 
             return damage;
         }
