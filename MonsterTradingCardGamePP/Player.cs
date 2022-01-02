@@ -139,11 +139,11 @@ namespace MonsterTradingCardGamePP
 
             Console.WriteLine("Zu Beachten: Karten die sich derzeit in ihrem Deck befinden sind nicht im Stack einsichtbar!\n");
 
-            Console.WriteLine("Position  CardID  Name              Damage  CardType  MonsterType  Element");
+            Card.printCardListHeader();
             int position = 0;
             foreach (Card card in Stack)
             {
-                Console.WriteLine($"{position.ToString().PadRight(10, ' ')}{card.CardID.ToString().PadRight(8, ' ')}{card.Name.PadRight(18, ' ')}{card.Damage.ToString().PadRight(8,' ')}{card.CardType.ToString().PadRight(10, ' ')}{card.MonsterType.ToString().PadRight(13, ' ')}{card.Element}");
+                card.printCard(position);
                 position++;
             }
         }
@@ -164,11 +164,11 @@ namespace MonsterTradingCardGamePP
                 return;
             }
 
-            Console.WriteLine("Position  CardID  Name              Damage  CardType  MonsterType  Element");
+            Card.printCardListHeader();
             int position = 0;
             foreach (Card card in Deck)
             {
-                Console.WriteLine($"{position.ToString().PadRight(10, ' ')}{card.CardID.ToString().PadRight(8, ' ')}{card.Name.PadRight(18, ' ')}{card.Damage.ToString().PadRight(8, ' ')}{card.CardType.ToString().PadRight(10, ' ')}{card.MonsterType.ToString().PadRight(13, ' ')}{card.Element}");
+                card.printCard(position);
                 position++;
             }
         }

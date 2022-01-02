@@ -11,8 +11,7 @@ namespace MonsterTradingCardGamePP.Cards
     class Card
     {
         /* At first it was planned to split Monster and Spell cards, and using an ICard Interface. However after thinking about it, I came to the conclusion to use only a single
-         * Class for the Cards, and differentiate between the Types by using an additional Enum. This made checking for the exhaustion mechanic easier too (can just set
-         * exhaustion 0 to spells and compare it like it is a monster card). */
+         * Class for the Cards, and differentiate between the Types by using an additional Enum. This made checking for the exhaustion mechanic easier too */
 
         public int CardID { get; } //only used when getting Card from Database, may be needed for Trading etc ? Not sure, but to be safe for later 
         public CardType CardType { get; } //Monster/Spell, for easier differentation
@@ -29,7 +28,7 @@ namespace MonsterTradingCardGamePP.Cards
         //Exhaustion can be gained after spell combat, but only Monsters can gain stacks, and it only affects Monster vs Monster fights
         public int Exhaustion { get; private set; } //no setter, can only be increased by one with function increaseExhaustion(), and after battle the battleDeck with the exausted card is thrown out anyway
 
-        public Card(int cardID, CardType cardType, MonsterType? monsterType, Element element,  string name, int damage)
+        public Card(int cardID, CardType cardType, MonsterType? monsterType, Element element, string name, int damage)
         {
             CardID = cardID;
             CardType = cardType;
@@ -56,7 +55,7 @@ namespace MonsterTradingCardGamePP.Cards
 
         private Element getWeakness(Element element)
         {
-            switch(element)
+            switch (element)
             {
                 case Element.Fire: return Element.Water;
                 case Element.Normal: return Element.Fire;
@@ -71,6 +70,16 @@ namespace MonsterTradingCardGamePP.Cards
         {
             Exhaustion++;
         }
+
+        public void printCard(int position)
+        {
+            Console.WriteLine($"{position.ToString().PadRight(10, ' ')}{CardID.ToString().PadRight(8, ' ')}{Name.PadRight(18, ' ')}{Damage.ToString().PadRight(8, ' ')}{CardType.ToString().PadRight(10, ' ')}{MonsterType.ToString().PadRight(13, ' ')}{Element}");
+        }
+
+        public static void printCardListHeader(){
+            Console.WriteLine("Position  CardID  Name              Damage  CardType  MonsterType  Element");    
+        }
+
     }
 
 }

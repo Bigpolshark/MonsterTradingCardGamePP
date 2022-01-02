@@ -321,9 +321,19 @@ namespace MonsterTradingCardGamePP.Database
                     reader.Read();
 
                     if (reader["monstertype"].ToString() != "")
-                        tempCard = new Card((int)reader["cardid"], (CardType)System.Enum.Parse(typeof(CardType), reader["cardtype"].ToString()), (MonsterType?)System.Enum.Parse(typeof(MonsterType), reader["monstertype"].ToString()), (Element)System.Enum.Parse(typeof(Element), reader["element"].ToString()), reader["name"].ToString(), (int)reader["damage"]);
+                        tempCard = new Card((int)reader["cardid"],
+                                            (CardType)System.Enum.Parse(typeof(CardType),reader["cardtype"].ToString()),
+                                            (MonsterType?)System.Enum.Parse(typeof(MonsterType),reader["monstertype"].ToString()),
+                                            (Element)System.Enum.Parse(typeof(Element),reader["element"].ToString()),
+                                            reader["name"].ToString(),
+                                            (int)reader["damage"]);
                     else
-                        tempCard = new Card((int)reader["cardid"], (CardType)System.Enum.Parse(typeof(CardType), reader["cardtype"].ToString()), null, (Element)System.Enum.Parse(typeof(Element), reader["element"].ToString()), reader["name"].ToString(), (int)reader["damage"]);
+                        tempCard = new Card((int)reader["cardid"],
+                                            (CardType)System.Enum.Parse(typeof(CardType),reader["cardtype"].ToString()),
+                                            null,
+                                            (Element)System.Enum.Parse(typeof(Element),reader["element"].ToString()),
+                                            reader["name"].ToString(),
+                                            (int)reader["damage"]);
                 }
                 Disconnect();
                 return tempCard;
