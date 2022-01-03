@@ -61,6 +61,7 @@ namespace MonsterTradingCardGamePP
                 Console.WriteLine("\n1 - Stack ansehen");
                 Console.WriteLine("2 - Deck verwalten"); 
                 Console.WriteLine("3 - Start Random Battle");                
+                Console.WriteLine("4 - Kartentausch");                
                 Console.WriteLine("8 - Karten Shop");
                 Console.WriteLine("9 - Programm Beenden\n");
 
@@ -94,6 +95,10 @@ namespace MonsterTradingCardGamePP
                         Battle currentBattle = Battle.setupBattle(currentPlayer);
                         currentBattle.printLog();
                         Output.confirm();
+                        break;
+                    case "4":
+                        //Karten tauschen
+                        Trade.tradeMenu(currentPlayer);
                         break;
                     case "8":
                         //Karten Shop

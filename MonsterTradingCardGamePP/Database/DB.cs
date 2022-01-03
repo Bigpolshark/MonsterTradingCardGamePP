@@ -321,19 +321,25 @@ namespace MonsterTradingCardGamePP.Database
                     reader.Read();
 
                     if (reader["monstertype"].ToString() != "")
+                    {
+
                         tempCard = new Card((int)reader["cardid"],
                                             (CardType)System.Enum.Parse(typeof(CardType),reader["cardtype"].ToString()),
                                             (MonsterType?)System.Enum.Parse(typeof(MonsterType),reader["monstertype"].ToString()),
                                             (Element)System.Enum.Parse(typeof(Element),reader["element"].ToString()),
                                             reader["name"].ToString(),
                                             (int)reader["damage"]);
+                    }
                     else
+                    {
+
                         tempCard = new Card((int)reader["cardid"],
                                             (CardType)System.Enum.Parse(typeof(CardType),reader["cardtype"].ToString()),
                                             null,
                                             (Element)System.Enum.Parse(typeof(Element),reader["element"].ToString()),
                                             reader["name"].ToString(),
                                             (int)reader["damage"]);
+                    }
                 }
                 Disconnect();
                 return tempCard;
@@ -403,6 +409,95 @@ namespace MonsterTradingCardGamePP.Database
 
                 Disconnect();
                 return tempPlayer;
+            }
+        }
+        public (List<Card>, List<tradeInfo>) viewAllTrades(int id)
+        {
+            Connect();
+            using (var sql = new NpgsqlCommand("SELECT * FROM trades JOIN cards ON cards.cardid=trades.tradedcardid WHERE NOT ownerid = @uID", Connection))
+            {
+                sql.Parameters.AddWithValue("uID", id);
+                NpgsqlDataReader reader = sql.ExecuteReader();
+
+                List<Card> tradeList = null;
+                List<tradeInfo> tradeInfo = null;
+
+                if (reader.HasRows)
+                {
+                    tradeList = new List<Card>();
+                    tradeInfo = new List<tradeInfo>();
+
+                    while (reader.Read())
+                    {
+                        //check if values are null
+                        CardType? ctype;
+                        int? mindmg, coin;
+
+                        if (reader["targetcardtype"].ToString() == "")
+                        {
+                            ctype = null;
+                        }
+                        else
+                        {
+                            ctype = (CardType)System.Enum.Parse(typeof(CardType), reader["targetcardtype"].ToString());
+                        }
+
+                        if (reader["mindmg"].ToString() == "")
+                        {
+                            mindmg = null;
+                        }
+                        else
+                        {
+                            mindmg = (int)reader["mindmg"];
+                        }
+
+                        if (reader["coinprice"].ToString() == "")
+                        {
+                            coin = null;
+                        }
+                        else
+                        {
+                            coin = (int)reader["coinprice"];
+                        }
+
+
+                        tradeInfo.Add(new tradeInfo((int)reader["tradeid"],
+                                        ctype,
+                                        mindmg,
+                                        coin));
+
+                        /* OLD VERSION
+                        tradeInfo.Add(new tradeInfo((int)reader["tradeid"],
+                                        (CardType)System.Enum.Parse(typeof(CardType), reader["cardtype"].ToString()),
+                                        (int)reader["mindmg"],
+                                        (int)reader["coinprice"]));
+                        */
+
+                        if (reader["monstertype"].ToString() != "")
+                        {
+
+                            tradeList.Add(new Card((int)reader["cardid"],
+                                                (CardType)System.Enum.Parse(typeof(CardType), reader["cardtype"].ToString()),
+                                                (MonsterType?)System.Enum.Parse(typeof(MonsterType), reader["monstertype"].ToString()),
+                                                (Element)System.Enum.Parse(typeof(Element), reader["element"].ToString()),
+                                                reader["name"].ToString(),
+                                                (int)reader["damage"]));
+                        }
+                        else
+                        {
+
+                            tradeList.Add(new Card((int)reader["cardid"],
+                                                (CardType)System.Enum.Parse(typeof(CardType), reader["cardtype"].ToString()),
+                                                null,
+                                                (Element)System.Enum.Parse(typeof(Element), reader["element"].ToString()),
+                                                reader["name"].ToString(),
+                                                (int)reader["damage"]));
+                        }
+                    }
+                }
+
+                Disconnect();
+                return (tradeList, tradeInfo);
             }
         }
     }

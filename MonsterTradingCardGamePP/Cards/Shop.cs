@@ -1,5 +1,6 @@
 ﻿using MonsterTradingCardGamePP.Cards;
 using MonsterTradingCardGamePP.Database;
+using MonsterTradingCardGamePP.Misc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,15 +38,12 @@ namespace MonsterTradingCardGamePP
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("\nSie besitzen derzeit leider nicht mehr genug coins, bitte besuchen die den Shop spaeter nochmal!\n");
-                    Console.ResetColor();
+                    Output.errorOutputCustom("Sie besitzen derzeit leider nicht mehr genug coins, bitte besuchen die den Shop spaeter nochmal!");
                     break;
                 }
             }
 
-            Console.WriteLine("\nDruecke Enter um fortzufahren");
-            Console.ReadLine();
+            Output.confirm();
         }
 
         private static void buyPack(Player player)
@@ -62,7 +60,7 @@ namespace MonsterTradingCardGamePP
                 int random = RNG.getInstance().RandomNumber(0, Program.AllCards.Count());
 
                 Card temp = new Card(Program.AllCards[random]);
-                Console.WriteLine($"{temp.CardID.ToString().PadRight(8, ' ')}{temp.Name.PadRight(18, ' ')}{temp.Damage.ToString().PadRight(8, ' ')}{temp.CardType.ToString().PadRight(10, ' ')}{temp.MonsterType.ToString().PadRight(13, ' ')}{temp.Element}");
+                temp.printCard();
                 
                 //add card to DB
                 DB.getInstance().addToStack(temp.CardID, player.UserID);

@@ -74,6 +74,10 @@ namespace MonsterTradingCardGamePP.Cards
         public void printCard(int position)
         {
             Console.WriteLine($"{position.ToString().PadRight(10, ' ')}{CardID.ToString().PadRight(8, ' ')}{Name.PadRight(18, ' ')}{Damage.ToString().PadRight(8, ' ')}{CardType.ToString().PadRight(10, ' ')}{MonsterType.ToString().PadRight(13, ' ')}{Element}");
+        }        
+        public void printCard() //without Position (when buying card packs)
+        {
+            Console.WriteLine($"{CardID.ToString().PadRight(8, ' ')}{Name.PadRight(18, ' ')}{Damage.ToString().PadRight(8, ' ')}{CardType.ToString().PadRight(10, ' ')}{MonsterType.ToString().PadRight(13, ' ')}{Element}");
         }
 
         public static void printCardListHeader(){
