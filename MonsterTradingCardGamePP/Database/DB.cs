@@ -530,5 +530,41 @@ namespace MonsterTradingCardGamePP.Database
             }
             Disconnect();
         }
+
+        public void tradeByCoin(Card newCard, tradeInfo info, int playerID)
+        {
+            Connect();
+            //remove tradedeal from DB
+            using (var sql = new NpgsqlCommand("DELETE FROM trades WHERE tradeid = @tID", Connection))
+            {
+                sql.Parameters.AddWithValue("tID", info.tradeId);
+                sql.ExecuteNonQuery();
+            }
+
+            //remove own coins
+            using (var sql = new NpgsqlCommand("UPDATE player SET coins = coins - @c WHERE id = @id", Connection))
+            {
+                sql.Parameters.AddWithValue("c", info.coinprice);
+                sql.Parameters.AddWithValue("id", playerID);
+                sql.ExecuteNonQuery();
+            }
+
+            //add coins to trade partner
+            using (var sql = new NpgsqlCommand("UPDATE player SET coins = coins + @c WHERE id = @id", Connection))
+            {
+                sql.Parameters.AddWithValue("c", info.coinprice);
+                sql.Parameters.AddWithValue("id", info.ownerID);
+                sql.ExecuteNonQuery();
+            }
+
+            //add new card to own Stack
+            using (var sql = new NpgsqlCommand("INSERT INTO playerstack (playerid, cardid) VALUES (@pID, @cID)", Connection))
+            {
+                sql.Parameters.AddWithValue("pID", playerID);
+                sql.Parameters.AddWithValue("cID", newCard.CardID);
+                sql.ExecuteNonQuery();
+            }
+            Disconnect();
+        }
     }
 }

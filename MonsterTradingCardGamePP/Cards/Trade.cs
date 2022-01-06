@@ -284,9 +284,12 @@ namespace MonsterTradingCardGamePP.Cards
             }
 
             //Karte wird hinzugefügt, Geld wird abgezogen und dem Karten besitzer überwiesen
-           // DB.getInstance().tradeByCoin(card, info, player.UserID);
+            DB.getInstance().tradeByCoin(card, info, player.UserID);
 
+            Console.WriteLine($"{card.Name} wurde erfolgreich gekauft !");
+            
             return true;
+
         }
     }
 
