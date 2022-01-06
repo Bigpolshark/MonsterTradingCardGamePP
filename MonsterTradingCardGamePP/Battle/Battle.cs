@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardGamePP
 {
-    class Battle
+    public class Battle
     {
         List<string> BattleLog;
         public List<Card> player1Deck { get; }
@@ -33,7 +33,12 @@ namespace MonsterTradingCardGamePP
             }
 
             BattleLog.Add($"Starte Battle zwischen {p1.Username} und {p2.Username}");
-            BattleLogic.fight(player1Deck, player2Deck, BattleLog, p1, p2);
+            int winnerID, loserID;
+            (winnerID, loserID) = BattleLogic.fight(player1Deck, player2Deck, BattleLog, p1, p2);
+
+            //Change Elo for Winner/Loser
+
+
         }
 
         public static Battle setupBattle(Player currentPlayer)
@@ -61,6 +66,8 @@ namespace MonsterTradingCardGamePP
             //randomly choose Opponent
             int random = RNG.getInstance().RandomNumber(0, potentialOpponents.Count());
             Player enemy = DB.getInstance().getUserByID(potentialOpponents[random].UserID);
+            enemy.getDeck();
+            enemy.getStack();
             Console.WriteLine($"Folgender Gegner wurde ermittelt: {enemy.Username}");
             Console.WriteLine("Starte Battle gegen den ausgewaehlten User!");
 

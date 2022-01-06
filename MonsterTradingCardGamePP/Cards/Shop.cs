@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardGamePP
 {
-    class Shop
+    public class Shop
     {
         public static void openShop(Player player)
         {

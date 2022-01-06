@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardGamePP.Cards
 {
-    class Card
+    public class Card
     {
         /* At first it was planned to split Monster and Spell cards, and using an ICard Interface. However after thinking about it, I came to the conclusion to use only a single
          * Class for the Cards, and differentiate between the Types by using an additional Enum. This made checking for the exhaustion mechanic easier too */

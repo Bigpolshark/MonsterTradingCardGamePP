@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardGamePP
 {
-    class RNG
+    public class RNG
     {
         //singleton
         private static RNG Instance = new RNG();

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardGamePP
 {
-    class Player
+    public class Player
     {
         public int UserID { get; }
         public string Username { get; }
@@ -26,12 +26,10 @@ namespace MonsterTradingCardGamePP
             AuthToken = authToken;
             Coins = coins;
             Elo = elo;
-            getStack();
-            getDeck();
         }
 
 
-        private void getDeck()
+        public void getDeck()
         {
             Deck = DB.getInstance().getUserDeck(UserID);
         }
@@ -129,6 +127,8 @@ namespace MonsterTradingCardGamePP
         {
             Console.Clear();
 
+            this.getStack();
+
             //check if Stack is empty
             if (Stack == null)
             {
@@ -156,6 +156,8 @@ namespace MonsterTradingCardGamePP
         public void showDeck()
         {
             Console.Clear();
+
+            this.getDeck();
 
             //check if Stack is empty
             if (Deck == null)

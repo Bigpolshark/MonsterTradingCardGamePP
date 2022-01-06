@@ -8,13 +8,12 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardGamePP
 {
-    class BattleLogic
+    public class BattleLogic
     {
-        public static List<string> log;
+        //public static List<string> log;
 
-        public static void fight(List<Card> player1Deck, List<Card> player2Deck, List<string> BattleLog, Player player1, Player player2)
+        public static (int,int) fight(List<Card> player1Deck, List<Card> player2Deck, List<string> log, Player player1, Player player2)
         {
-            log = BattleLog;
 
             for (int i = 1; i <= 100; i++)
             {
@@ -29,8 +28,8 @@ namespace MonsterTradingCardGamePP
                 Card card2 = selectCard(player2Deck, selection2);
                 log.Add($"{player2.Username} has choosen {card2.Name}");
 
-                int damage1 = calcDamage(card1, card2);
-                int damage2 = calcDamage(card2, card1);
+                int damage1 = calcDamage(card1, card2, log);
+                int damage2 = calcDamage(card2, card1, log);
                 log.Add($"{card1.Name} is attacking with an damage value of {damage1}");
                 log.Add($"{card2.Name} is attacking with an damage value of {damage2}");
 
@@ -83,7 +82,7 @@ namespace MonsterTradingCardGamePP
                     log.Add($"------------------------------------------------");
                     Console.ResetColor();
                     //elo noch machen
-                    return;
+                    return (player2.UserID, player1.UserID);
                 }
                 else if(player2Deck.Count() == 0)
                 {
@@ -93,7 +92,7 @@ namespace MonsterTradingCardGamePP
                     log.Add($"------------------------------------------------");
                     Console.ResetColor();
                     //elo noch machen
-                    return;
+                    return (player1.UserID, player2.UserID);
                 }
             }
 
@@ -102,25 +101,11 @@ namespace MonsterTradingCardGamePP
             log.Add("Es konnte nach 100 Runden kein Sieger gefunden!");
             log.Add("Die ELO - Werte beider Spieler bleiben unverändert");
 
-            //debug
-            /*
-            Console.WriteLine("Player1");
-            foreach(Card card in player1Deck)
-            {
-                Console.WriteLine(card.Name);
-            }            
-            Console.WriteLine("Player2");
-            foreach(Card card in player2Deck)
-            {
-                Console.WriteLine(card.Name);
-            }
-
-            Output.confirm();
-            */
+            return (0, 0); //check outside ==> if 0,0 it is a Draw
 
         }
 
-        private static Card selectCard(List<Card> deck, int selection)
+        public static Card selectCard(List<Card> deck, int selection)
         {
             //create a copy of the chosen card and at the same time remove it from the Deck
 
@@ -131,19 +116,19 @@ namespace MonsterTradingCardGamePP
             return tempCard;
         }
 
-        private static int calcDamage(Card ownCard, Card enemyCard)
+        private static int calcDamage(Card ownCard, Card enemyCard, List<string> log)
         {
             int damage = ownCard.Damage; //base value
 
 
             if(ownCard.CardType == Enum.CardType.Spell || enemyCard.CardType == Enum.CardType.Spell)
             {
-                damage = spellCombat(ownCard, enemyCard, damage); 
+                damage = spellCombat(ownCard, enemyCard, damage, log); 
             }
             else //monster only combat
             {
                 //normally nothing to calculate, but here comes the unique mechanic "exhaustion" to play
-                damage = monsterCombat(ownCard, enemyCard, damage);
+                damage = monsterCombat(ownCard, enemyCard, damage, log);
             }
 
 
@@ -155,7 +140,7 @@ namespace MonsterTradingCardGamePP
         }
 
 
-        private static int spellCombat(Card ownCard, Card enemyCard, int damage)
+        public static int spellCombat(Card ownCard, Card enemyCard, int damage, List<string> log)
         {
             //for Element, can check Weakness first, then if same element, and if it isnt any of the above, it has to be resisant to it
             if (ownCard.Element == enemyCard.Weakness)
@@ -176,7 +161,7 @@ namespace MonsterTradingCardGamePP
 
             return damage;
         }
-        private static int monsterCombat(Card ownCard, Card enemyCard, int damage)
+        public static int monsterCombat(Card ownCard, Card enemyCard, int damage, List<string> log)
         {
             if(ownCard.Exhaustion > enemyCard.Exhaustion)
             {

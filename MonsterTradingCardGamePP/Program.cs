@@ -10,7 +10,7 @@ using MonsterTradingCardGamePP.Misc;
 
 namespace MonsterTradingCardGamePP
 {
-    class Program
+    public class Program
     {
         public static List<Card> AllCards;
 
@@ -56,6 +56,10 @@ namespace MonsterTradingCardGamePP
             {
                 Console.Clear();
                 Console.WriteLine($"Eingeloggt als User {currentPlayer.Username}\n");
+
+                //update Stack/Deck when in this menu
+                currentPlayer.getStack();
+                currentPlayer.getDeck();
 
                 Console.WriteLine("Was wollen Sie tun ?");
                 Console.WriteLine("\n1 - Stack ansehen");

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardGamePP.Cards
 {
-    class Trade
+    public class Trade
     {
         public static void tradeMenu(Player player)
         {
@@ -108,8 +108,9 @@ namespace MonsterTradingCardGamePP.Cards
 
             buyCardTrade(player, tradeableCards[selection], cardInfo[selection]);
 
-            //update Stack
+            //update Stack and Coins
             player.getStack();
+            player.updateCoins();
 
             Output.confirm();
         }
@@ -267,19 +268,23 @@ namespace MonsterTradingCardGamePP.Cards
                 break;
             }
 
-            //Hier Logik einbauen ==> Karte die durch "selection ausgewählt wurde wird aus dem Stack entfernt, und neue Karte kommt dazu
-            //
-            //
-            //
-
+            //Karte die durch "selection" ausgewählt wurde wird aus dem Stack entfernt, und neue Karte kommt dazu
+            DB.getInstance().tradeByCard(card, info, tradeableCards[selection], player.UserID);
 
             return true;
         }
 
         private static bool buyWithCoin(Player player, Card card, tradeInfo info)
         {
-            //filler
+            if (player.Coins < info.coinprice)
+            {
+                Output.errorOutputCustom("Sie besitzen derzeit nicht genug coins!\n");
 
+                return false;
+            }
+
+            //Karte wird hinzugefügt, Geld wird abgezogen und dem Karten besitzer überwiesen
+           // DB.getInstance().tradeByCoin(card, info, player.UserID);
 
             return true;
         }

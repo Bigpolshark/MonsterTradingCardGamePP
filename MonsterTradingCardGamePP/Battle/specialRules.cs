@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardGamePP.Cards
 {
-    class specialRules
+    public class specialRules
     {
         public static int checkSpecial(Card own, Card enemy, int damage, List<string> BattleLog)
         {

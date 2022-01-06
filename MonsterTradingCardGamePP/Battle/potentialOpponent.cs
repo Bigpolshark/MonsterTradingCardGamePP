@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardGamePP
 {
-    class potentialOpponent
+    public class potentialOpponent
     {
         public int UserID { get; }
         public string Username { get; }

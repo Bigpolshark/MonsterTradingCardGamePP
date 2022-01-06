@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardGamePP.Misc
 {
-    class Output
+    public class Output
     {
         public static void errorOutputWrongSelection()
         {

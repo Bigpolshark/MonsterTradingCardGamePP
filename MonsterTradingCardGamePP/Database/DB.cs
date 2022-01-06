@@ -1,5 +1,6 @@
 ﻿using MonsterTradingCardGamePP.Cards;
 using MonsterTradingCardGamePP.Enum;
+using MonsterTradingCardGamePP.Misc;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -49,11 +50,14 @@ namespace MonsterTradingCardGamePP.Database
                 authtoken = "" + username[0] + username[username.Length - 1] + tokenNumber.ToString();
             } while (checkToken(authtoken) == false);
 
+            //hashPW
+            string hashedPassword = miscFunctions.hashPassword(password);
+
             Connect();
             using (var sql = new NpgsqlCommand("INSERT INTO player (username, password, authtoken, coins, elo) VALUES (@user, @pass, @auth, @coin, @elo)", Connection))
             {
                 sql.Parameters.AddWithValue("user", username);
-                sql.Parameters.AddWithValue("pass", password);
+                sql.Parameters.AddWithValue("pass", hashedPassword);
                 sql.Parameters.AddWithValue("auth", authtoken);
                 sql.Parameters.AddWithValue("coin", coins);
                 sql.Parameters.AddWithValue("elo", ELO);
@@ -122,11 +126,13 @@ namespace MonsterTradingCardGamePP.Database
 
         public Player login(string username, string password)
         {
+            string hashedPassword = miscFunctions.hashPassword(password);
+
             Connect();
             using (var sql = new NpgsqlCommand("SELECT * FROM player WHERE username = @user AND password = @pass", Connection))
             {
                 sql.Parameters.AddWithValue("user", username);
-                sql.Parameters.AddWithValue("pass", password);
+                sql.Parameters.AddWithValue("pass", hashedPassword);
                 NpgsqlDataReader reader = sql.ExecuteReader();
 
                 Player tempPlayer = null;
@@ -250,7 +256,7 @@ namespace MonsterTradingCardGamePP.Database
                     cardList = new List<Card>();
                     while (reader.Read())
                     {
-                        cardList.Add(new Card(Program.AllCards[(int)reader["cardid"]-1]));
+                        cardList.Add(new Card(getCardFromID((int)reader["cardid"])));
                     }
 
                 }
@@ -464,14 +470,9 @@ namespace MonsterTradingCardGamePP.Database
                         tradeInfo.Add(new tradeInfo((int)reader["tradeid"],
                                         ctype,
                                         mindmg,
-                                        coin));
+                                        coin,
+                                        (int)reader["ownerid"]));
 
-                        /* OLD VERSION
-                        tradeInfo.Add(new tradeInfo((int)reader["tradeid"],
-                                        (CardType)System.Enum.Parse(typeof(CardType), reader["cardtype"].ToString()),
-                                        (int)reader["mindmg"],
-                                        (int)reader["coinprice"]));
-                        */
 
                         if (reader["monstertype"].ToString() != "")
                         {
@@ -499,6 +500,35 @@ namespace MonsterTradingCardGamePP.Database
                 Disconnect();
                 return (tradeList, tradeInfo);
             }
+
+        }
+
+        public void tradeByCard(Card newCard, tradeInfo info, Card oldCard, int playerID)
+        {
+            Connect();
+            //remove tradedeal from DB
+            using (var sql = new NpgsqlCommand("DELETE FROM trades WHERE tradeid = @tID", Connection))
+            {
+                sql.Parameters.AddWithValue("tID", info.tradeId);
+                sql.ExecuteNonQuery();
+            }
+
+            //remove own card that is being traded away
+            using (var sql = new NpgsqlCommand("DELETE FROM playerstack WHERE number IN(SELECT number FROM playerstack WHERE cardid = @cID AND playerid = @pID LIMIT 1)", Connection))
+            {
+                sql.Parameters.AddWithValue("cID", oldCard.CardID);
+                sql.Parameters.AddWithValue("pID", playerID);
+                sql.ExecuteNonQuery();
+            }
+
+            //add new card to own Stack
+            using (var sql = new NpgsqlCommand("INSERT INTO playerstack (playerid, cardid) VALUES (@pID, @cID)", Connection))
+            {
+                sql.Parameters.AddWithValue("pID", playerID);
+                sql.Parameters.AddWithValue("cID", newCard.CardID);
+                sql.ExecuteNonQuery();
+            }
+            Disconnect();
         }
     }
 }
