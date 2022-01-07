@@ -566,5 +566,179 @@ namespace MonsterTradingCardGamePP.Database
             }
             Disconnect();
         }
+
+        public void tradeForCard(int cardid, int ownerID, CardType ctype, int damage)
+        {
+            Connect();
+            //add tradedeal to DB
+            using (var sql = new NpgsqlCommand("INSERT INTO trades (ownerid, targetcardtype, mindmg, tradedcardid) VALUES (@oID, @tctype, @dmg, @tcID)", Connection))
+            {
+                sql.Parameters.AddWithValue("oID", ownerID);
+                sql.Parameters.AddWithValue("tctype", ctype.ToString());                
+                sql.Parameters.AddWithValue("dmg", damage);
+                sql.Parameters.AddWithValue("tcID", cardid);
+                sql.ExecuteNonQuery();
+            }
+
+            //remove Card from Stack
+            using (var sql = new NpgsqlCommand("DELETE FROM playerstack WHERE number IN(SELECT number FROM playerstack WHERE cardid = @cID AND playerid = @pID LIMIT 1)", Connection))
+            {
+                sql.Parameters.AddWithValue("cID", cardid);
+                sql.Parameters.AddWithValue("pID", ownerID);
+                sql.ExecuteNonQuery();
+            }
+            Disconnect();
+        }
+
+        public void tradeForCoin(int cardid, int ownerID, int coin)
+        {
+            Connect();
+            //add tradedeal to DB
+            using (var sql = new NpgsqlCommand("INSERT INTO trades (ownerid, coinprice, tradedcardid) VALUES (@oID, @coin, @tcID)", Connection))
+            {
+                sql.Parameters.AddWithValue("oID", ownerID);
+                sql.Parameters.AddWithValue("coin", coin);
+                sql.Parameters.AddWithValue("tcID", cardid);
+                sql.ExecuteNonQuery();
+            }
+
+            //remove Card from Stack
+            using (var sql = new NpgsqlCommand("DELETE FROM playerstack WHERE number IN(SELECT number FROM playerstack WHERE cardid = @cID AND playerid = @pID LIMIT 1)", Connection))
+            {
+                sql.Parameters.AddWithValue("cID", cardid);
+                sql.Parameters.AddWithValue("pID", ownerID);
+                sql.ExecuteNonQuery();
+            }
+            Disconnect();
+        }
+
+        public void tradeForCardAndCoin(int cardid, int ownerID, int coin, CardType ctype, int damage)
+        {
+            Connect();
+            //add tradedeal to DB
+            using (var sql = new NpgsqlCommand("INSERT INTO trades (ownerid, targetcardtype, mindmg, coinprice, tradedcardid) VALUES (@oID, @tctype, @dmg, @coin, @tcID)", Connection))
+            {
+                sql.Parameters.AddWithValue("oID", ownerID);
+                sql.Parameters.AddWithValue("tctype", ctype.ToString());
+                sql.Parameters.AddWithValue("dmg", damage);
+                sql.Parameters.AddWithValue("coin", coin);
+                sql.Parameters.AddWithValue("tcID", cardid);
+                sql.ExecuteNonQuery();
+            }
+
+            //remove Card from Stack
+            using (var sql = new NpgsqlCommand("DELETE FROM playerstack WHERE number IN(SELECT number FROM playerstack WHERE cardid = @cID AND playerid = @pID LIMIT 1)", Connection))
+            {
+                sql.Parameters.AddWithValue("cID", cardid);
+                sql.Parameters.AddWithValue("pID", ownerID);
+                sql.ExecuteNonQuery();
+            }
+            Disconnect();
+        }
+
+        public (List<Card>, List<tradeInfo>) viewOwnTrades(int id)
+        {
+            Connect();
+            using (var sql = new NpgsqlCommand("SELECT * FROM trades JOIN cards ON cards.cardid=trades.tradedcardid WHERE ownerid = @uID", Connection))
+            {
+                sql.Parameters.AddWithValue("uID", id);
+                NpgsqlDataReader reader = sql.ExecuteReader();
+
+                List<Card> tradeList = null;
+                List<tradeInfo> tradeInfo = null;
+
+                if (reader.HasRows)
+                {
+                    tradeList = new List<Card>();
+                    tradeInfo = new List<tradeInfo>();
+
+                    while (reader.Read())
+                    {
+                        //check if values are null
+                        CardType? ctype;
+                        int? mindmg, coin;
+
+                        if (reader["targetcardtype"].ToString() == "")
+                        {
+                            ctype = null;
+                        }
+                        else
+                        {
+                            ctype = (CardType)System.Enum.Parse(typeof(CardType), reader["targetcardtype"].ToString());
+                        }
+
+                        if (reader["mindmg"].ToString() == "")
+                        {
+                            mindmg = null;
+                        }
+                        else
+                        {
+                            mindmg = (int)reader["mindmg"];
+                        }
+
+                        if (reader["coinprice"].ToString() == "")
+                        {
+                            coin = null;
+                        }
+                        else
+                        {
+                            coin = (int)reader["coinprice"];
+                        }
+
+
+                        tradeInfo.Add(new tradeInfo((int)reader["tradeid"],
+                                        ctype,
+                                        mindmg,
+                                        coin,
+                                        (int)reader["ownerid"]));
+
+
+                        if (reader["monstertype"].ToString() != "")
+                        {
+
+                            tradeList.Add(new Card((int)reader["cardid"],
+                                                (CardType)System.Enum.Parse(typeof(CardType), reader["cardtype"].ToString()),
+                                                (MonsterType?)System.Enum.Parse(typeof(MonsterType), reader["monstertype"].ToString()),
+                                                (Element)System.Enum.Parse(typeof(Element), reader["element"].ToString()),
+                                                reader["name"].ToString(),
+                                                (int)reader["damage"]));
+                        }
+                        else
+                        {
+
+                            tradeList.Add(new Card((int)reader["cardid"],
+                                                (CardType)System.Enum.Parse(typeof(CardType), reader["cardtype"].ToString()),
+                                                null,
+                                                (Element)System.Enum.Parse(typeof(Element), reader["element"].ToString()),
+                                                reader["name"].ToString(),
+                                                (int)reader["damage"]));
+                        }
+                    }
+                }
+
+                Disconnect();
+                return (tradeList, tradeInfo);
+            }
+
+        }
+
+        public void removeTrade(int playerID, Card newCard, tradeInfo info)
+        {
+            Connect();
+            //remove tradedeal from DB
+            using (var sql = new NpgsqlCommand("DELETE FROM trades WHERE tradeid = @tID", Connection))
+            {
+                sql.Parameters.AddWithValue("tID", info.tradeId);
+                sql.ExecuteNonQuery();
+            }
+
+            //add removed card to own Stack
+            using (var sql = new NpgsqlCommand("INSERT INTO playerstack (playerid, cardid) VALUES (@pID, @cID)", Connection))
+            {
+                sql.Parameters.AddWithValue("pID", playerID);
+                sql.Parameters.AddWithValue("cID", newCard.CardID);
+                sql.ExecuteNonQuery();
+            }
+        }
     }
 }

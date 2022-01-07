@@ -31,12 +31,12 @@ namespace MonsterTradingCardGamePP.Cards
                         viewAllTrades(player);
                         break;
                     case "2":
-                        //remove card
-                        //removeCard();
+                        //publish trade deal
+                        publishTrade(player);
                         break;
                     case "3":
-                        //remove card
-                        //removeCard();
+                        //see own trade deals
+                        viewOwnTrades(player);
                         break;
                     case "4": break;
                     default:
@@ -290,6 +290,305 @@ namespace MonsterTradingCardGamePP.Cards
             
             return true;
 
+        }
+
+        private static void publishTrade(Player player)
+        {
+            //Karte vom Stack auswählen
+            player.showStack();
+
+            Console.WriteLine("\nWelche Karte aus ihrem Stack wollen Sie ihrem Deck hinzufügen? Geben Sie bitte die 'Position' an!\nFalls sie den Tausch abbrechen wollen, geben Sie bitte 'x' ein!");
+
+            string input;
+            int selection = 0;
+            while (true)
+            {
+                while (true)
+                {
+                    input = Console.ReadLine();
+                    if (input == "x")
+                        return;
+
+                    try
+                    {
+                        selection = Int32.Parse(input);
+                    }
+                    catch (FormatException)
+                    {
+                        Output.errorNotInt();
+                        continue;
+                    }
+                    break;
+                }
+
+                if (selection < 0 || selection >= player.Stack.Count())
+                {
+                    Output.errorOutputWrongSelection();
+                    continue;
+                }
+
+                break;
+            }
+
+            //auswählen was mit karte machen
+            bool loop = true;
+            input = null;
+            while (loop)
+            {
+                Console.Clear();
+                Console.WriteLine("\nFuer was wollen Sie die Karte anbieten ?");
+                Console.WriteLine("\n1 - Gegen eine andere Karte");
+                Console.WriteLine("2 - Gegen coins");
+                Console.WriteLine("3 - Gegen beides");
+                Console.WriteLine("4 - Abbrechen\n");
+
+                input = Console.ReadLine();
+
+                switch (input)
+                {
+                    case "1":
+                        tradeForCard(player, player.Stack[selection]);
+                        loop = false;
+                        break;
+                    case "2":
+                        tradeForCoin(player, player.Stack[selection]);
+                        loop = false;
+                        break;
+                    case "3":
+                        tradeForCardAndCoin(player, player.Stack[selection]);
+                        loop = false;
+                        break;
+                    case "4": break;
+                    default:
+                        Output.errorOutputWrongSelection();
+                        Output.confirm();
+                        break;
+                }
+            }
+
+            Output.confirm();
+        }
+
+        private static void tradeForCard(Player player, Card card)
+        {
+            Enum.CardType? ctype;
+            int? damage;
+            (ctype, damage) = chooseCardForTrade();
+
+            if (ctype == null)
+                return;
+
+            //add trade to DB, remove Card from stack
+            DB.getInstance().tradeForCard(card.CardID, player.UserID, (Enum.CardType)ctype, (int)damage);
+
+        }
+
+        private static void tradeForCoin(Player player, Card card)
+        {
+            int? coin;
+            coin = chooseCoinForTrade();
+
+            if (coin == null)
+                return;
+
+            //add trade to DB, remove Card from stack
+            DB.getInstance().tradeForCoin(card.CardID, player.UserID, (int)coin);
+        }
+
+        private static void tradeForCardAndCoin(Player player, Card card)
+        {
+
+
+            Enum.CardType? ctype;
+            int? damage;
+            (ctype, damage) = chooseCardForTrade();
+
+            if (ctype == null)
+                return;
+
+            int? coin;
+            coin = chooseCoinForTrade();
+
+            if (coin == null)
+                return;
+
+            //add trade to DB, remove Card from stack
+            DB.getInstance().tradeForCardAndCoin(card.CardID, player.UserID, (int)coin, (Enum.CardType)ctype, (int)damage);
+        }
+
+        private static (Enum.CardType?, int?) chooseCardForTrade()
+        {
+            Enum.CardType? ctype = null; ;
+
+            bool loop = true;
+            string input = null;
+            while (loop)
+            {
+                Console.Clear();
+                Console.WriteLine("\nSoll die Karten ein Monster oder ein Spell sein?");
+                Console.WriteLine("\n1 - Monster");
+                Console.WriteLine("2 - Spell");
+                Console.WriteLine("3 - Abbrechen\n");
+
+                input = Console.ReadLine();
+
+                switch (input)
+                {
+                    case "1":
+                        ctype = Enum.CardType.Monster;
+                        loop = false;
+                        break;
+                    case "2":
+                        ctype = Enum.CardType.Spell;
+                        loop = false;
+                        break;
+                    case "3": return (null,null);
+                    default:
+                        Output.errorOutputWrongSelection();
+                        Output.confirm();
+                        break;
+                }
+            }
+
+            Console.WriteLine("\nWelchen Damage soll die Karte mindestens haben (0-100)?\nFalls sie den Tausch abbrechen wollen, geben Sie bitte 'x' ein!");
+
+            input = null;
+            int selection = 0;
+            while (true)
+            {
+                while (true)
+                {
+                    input = Console.ReadLine();
+                    if (input == "x")
+                        return (null, null);
+
+                    try
+                    {
+                        selection = Int32.Parse(input);
+                    }
+                    catch (FormatException)
+                    {
+                        Output.errorNotInt();
+                        continue;
+                    }
+                    break;
+                }
+
+                if (selection < 0 || selection >= 100)
+                {
+                    Output.errorOutputWrongSelection();
+                    continue;
+                }
+
+                break;
+            }
+
+            return (ctype, selection);
+        }
+
+        private static int? chooseCoinForTrade()
+        {
+            Console.WriteLine("\nFuer welchen coin-Wert soll die Karte angeboten werden (0-100)?\nFalls sie den Tausch abbrechen wollen, geben Sie bitte 'x' ein!");
+
+            string input = null;
+            int selection;
+            while (true)
+            {
+                while (true)
+                {
+                    input = Console.ReadLine();
+                    if (input == "x")
+                        return null;
+
+                    try
+                    {
+                        selection = Int32.Parse(input);
+                    }
+                    catch (FormatException)
+                    {
+                        Output.errorNotInt();
+                        continue;
+                    }
+                    break;
+                }
+
+                if (selection < 0 || selection >= 100)
+                {
+                    Output.errorOutputWrongSelection();
+                    continue;
+                }
+
+                break;
+            }
+
+            return selection;
+        }
+
+        private static void viewOwnTrades(Player player)
+        {
+
+            Console.Clear();
+            List<Card> tradeableCards;
+            List<tradeInfo> cardInfo;
+
+            (tradeableCards, cardInfo) = DB.getInstance().viewOwnTrades(player.UserID);
+
+            if (tradeableCards == null)
+            {
+                Output.errorOutputCustom("Derzeit befinden sich keine Karten von Ihnen auf der Tauschboerse!");
+                Output.confirm();
+                return;
+            }
+
+            int position = -1; //starts at -1, so it can be incremented at the beginning of the loop, and the variable can be used later to see how many trade offers exist
+            Console.WriteLine("Position  CardID  Name              Damage  CardType  MonsterType  Element || TargetCardType MinDdmg Coinprice");
+            foreach (Card card in tradeableCards)
+            {
+                position++;
+                Console.Write(position.ToString().PadRight(10, ' '));
+                printTrade(card, cardInfo[position]);
+            }
+
+            Console.WriteLine("\nWollen Sie einen Tausch zurueckziehen ? Wenn ja, geben Sie bitte die 'Position' an!\nFalls sie diese Menue verlassen wollen, geben Sie bitte 'x' ein!");
+
+            string input;
+            int selection = 0;
+            while (true)
+            {
+                while (true)
+                {
+                    input = Console.ReadLine();
+                    if (input == "x")
+                        return;
+
+                    try
+                    {
+                        selection = Int32.Parse(input);
+                    }
+                    catch (FormatException)
+                    {
+                        Output.errorNotInt();
+                        continue;
+                    }
+                    break;
+                }
+
+                if (selection < 0 || selection > position)
+                {
+                    Output.errorOutputWrongSelection();
+                    continue;
+                }
+
+                break;
+            }
+
+            DB.getInstance().removeTrade(player.UserID, tradeableCards[selection], cardInfo[selection]);
+
+            //update Stack and Coins
+            player.getStack();
+            player.updateCoins();
+
+            Output.confirm();
         }
     }
 

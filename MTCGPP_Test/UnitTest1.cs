@@ -170,9 +170,9 @@ namespace MTCGPP_Test
             List<string> log = new List<string>();
 
             //act
-            int doubleDamage = BattleLogic.spellCombat(fireSpell, normalKnight, 10, log);
-            int normalDamage = BattleLogic.spellCombat(fireSpell, fireKnight, 10, log);
-            int halveDamage = BattleLogic.spellCombat(fireSpell, waterKnight, 10, log);
+            int doubleDamage = BattleLogic.spellCombat(fireSpell, normalKnight, damage, log);
+            int normalDamage = BattleLogic.spellCombat(fireSpell, fireKnight, damage, log);
+            int halveDamage = BattleLogic.spellCombat(fireSpell, waterKnight, damage, log);
 
 
             //assert
