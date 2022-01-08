@@ -53,7 +53,7 @@ namespace MonsterTradingCardGamePP.Cards
             Weakness = referenceCard.Weakness;
         }
 
-        private Element getWeakness(Element element)
+        public static Element getWeakness(Element element)
         {
             switch (element)
             {

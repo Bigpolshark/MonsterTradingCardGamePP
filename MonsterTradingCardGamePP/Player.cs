@@ -18,14 +18,18 @@ namespace MonsterTradingCardGamePP
         public List<Card> Deck { get; set; }
         public int Coins { get; set; } //need to add subtract coins method
         public int Elo { get; }
+        public int Games { get; }
+        public int Wins { get; }
 
-        public Player(int id, string username, string authToken, int coins, int elo)
+        public Player(int id, string username, string authToken, int coins, int elo, int games, int wins)
         {
             UserID = id;
             Username = username;
             AuthToken = authToken;
             Coins = coins;
             Elo = elo;
+            Games = games;
+            Wins = wins;
         }
 
 

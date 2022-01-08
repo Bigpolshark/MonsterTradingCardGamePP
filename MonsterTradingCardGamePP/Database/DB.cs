@@ -42,6 +42,8 @@ namespace MonsterTradingCardGamePP.Database
             int ELO = 100; //starting value 100
             int coins = 20; //starting value 20
             int tokenNumber;
+            int games = 0; //starting value 0
+            int wins = 0; //starting value 0
             string authtoken;
 
             do
@@ -54,13 +56,15 @@ namespace MonsterTradingCardGamePP.Database
             string hashedPassword = miscFunctions.hashPassword(password);
 
             Connect();
-            using (var sql = new NpgsqlCommand("INSERT INTO player (username, password, authtoken, coins, elo) VALUES (@user, @pass, @auth, @coin, @elo)", Connection))
+            using (var sql = new NpgsqlCommand("INSERT INTO player (username, password, authtoken, coins, elo, games, wins) VALUES (@user, @pass, @auth, @coin, @elo, @game, @win)", Connection))
             {
                 sql.Parameters.AddWithValue("user", username);
                 sql.Parameters.AddWithValue("pass", hashedPassword);
                 sql.Parameters.AddWithValue("auth", authtoken);
                 sql.Parameters.AddWithValue("coin", coins);
-                sql.Parameters.AddWithValue("elo", ELO);
+                sql.Parameters.AddWithValue("elo", ELO);                
+                sql.Parameters.AddWithValue("game", games);
+                sql.Parameters.AddWithValue("win", wins);
                 sql.ExecuteNonQuery();
             }
             Disconnect();
@@ -140,7 +144,7 @@ namespace MonsterTradingCardGamePP.Database
                 if (reader.HasRows)
                 {
                     reader.Read();
-                    tempPlayer = new Player((int)reader["id"], reader["username"].ToString(), reader["authtoken"].ToString(), (int)reader["coins"], (int)reader["elo"]);
+                    tempPlayer = new Player((int)reader["id"], reader["username"].ToString(), reader["authtoken"].ToString(), (int)reader["coins"], (int)reader["elo"], (int)reader["games"], (int)reader["wins"]);
                 }
 
                 Disconnect();
@@ -410,7 +414,7 @@ namespace MonsterTradingCardGamePP.Database
                 if (reader.HasRows)
                 {
                     reader.Read();
-                    tempPlayer = new Player((int)reader["id"], reader["username"].ToString(), reader["authtoken"].ToString(), (int)reader["coins"], (int)reader["elo"]);
+                    tempPlayer = new Player((int)reader["id"], reader["username"].ToString(), reader["authtoken"].ToString(), (int)reader["coins"], (int)reader["elo"], (int)reader["games"], (int)reader["wins"]);
                 }
 
                 Disconnect();
@@ -739,6 +743,78 @@ namespace MonsterTradingCardGamePP.Database
                 sql.Parameters.AddWithValue("cID", newCard.CardID);
                 sql.ExecuteNonQuery();
             }
+        }
+
+        public List<Player> getUsersScoreboard()
+        {
+            Connect();
+            using (var sql = new NpgsqlCommand("SELECT * FROM player ORDER BY elo DESC", Connection))
+            {
+                NpgsqlDataReader reader = sql.ExecuteReader();
+
+                List<Player> playerList = null;
+
+                if (reader.HasRows)
+                {
+                    playerList = new List<Player>();
+                    while (reader.Read())
+                    {
+                        playerList.Add(new Player((int)reader["id"],
+                                                  reader["username"].ToString(),
+                                                  reader["authtoken"].ToString(),
+                                                  (int)reader["coins"],
+                                                  (int)reader["elo"],
+                                                  (int)reader["games"],
+                                                  (int)reader["wins"]));
+                    }
+                }
+
+                Disconnect();
+                return playerList;
+            }
+        }
+
+        public void addWinAndChangeElo(int id)
+        {
+            Connect();
+            //add elo, win and game
+            using (var sql = new NpgsqlCommand("UPDATE player SET elo = elo + 3, wins = wins + 1, games = games + 1 WHERE id = @id", Connection))
+            {
+                sql.Parameters.AddWithValue("id", id);
+                sql.ExecuteNonQuery();
+            }
+            Disconnect();
+        }
+
+        public void addLossAndChangeElo(int id)
+        {
+            int elo = 0;
+            Connect();
+            //get elo, so we can check and prevent it from going below 0
+            using (var sql = new NpgsqlCommand("SELECT elo FROM player WHERE id = @id", Connection))
+            {
+                sql.Parameters.AddWithValue("id", id);
+                NpgsqlDataReader reader = sql.ExecuteReader();
+
+                reader.Read();
+                elo = (int)reader["elo"];
+            }
+            Disconnect();
+
+            if (elo - 5 < 0)
+                elo = 0;
+            else
+                elo -= 5;
+            
+            Connect();
+            //remove elo, add game
+            using (var sql = new NpgsqlCommand("UPDATE player SET elo = @elo, games = games + 1 WHERE id = @id", Connection))
+            {
+                sql.Parameters.AddWithValue("elo", elo);
+                sql.Parameters.AddWithValue("id", id);
+                sql.ExecuteNonQuery();
+            }
+            Disconnect();
         }
     }
 }

@@ -486,7 +486,7 @@ namespace MonsterTradingCardGamePP.Cards
             return (ctype, selection);
         }
 
-        private static int? chooseCoinForTrade()
+        public static int? chooseCoinForTrade()
         {
             Console.WriteLine("\nFuer welchen coin-Wert soll die Karte angeboten werden (0-100)?\nFalls sie den Tausch abbrechen wollen, geben Sie bitte 'x' ein!");
 

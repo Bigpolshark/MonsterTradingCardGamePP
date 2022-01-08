@@ -99,8 +99,10 @@
     <Compile Include="Cards\tradeInfo.cs" />
     <Compile Include="Database\DB.cs" />
     <Compile Include="Enum\Enums.cs" />
+    <Compile Include="Misc\Menu.cs" />
     <Compile Include="Misc\miscFunctions.cs" />
     <Compile Include="Misc\Output.cs" />
+    <Compile Include="Misc\Scoreboard.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Battle\potentialOpponent.cs" />
     <Compile Include="Program.cs" />

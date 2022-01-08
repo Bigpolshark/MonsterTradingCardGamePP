@@ -36,9 +36,16 @@ namespace MonsterTradingCardGamePP
             int winnerID, loserID;
             (winnerID, loserID) = BattleLogic.fight(player1Deck, player2Deck, BattleLog, p1, p2);
 
-            //Change Elo for Winner/Loser
-
-
+            //Change Elo for Winner/Loser (draw does not change elo)
+            if(winnerID == 0)
+            {
+                //no elo change
+            }
+            else
+            {
+                DB.getInstance().addWinAndChangeElo(winnerID);
+                DB.getInstance().addLossAndChangeElo(loserID);
+            }
         }
 
         public static Battle setupBattle(Player currentPlayer)

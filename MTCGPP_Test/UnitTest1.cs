@@ -22,8 +22,8 @@ namespace MTCGPP_Test
         {
             //arrange
             //manually set Player with only a single Card in deck, so to guarantee the winner is testPlayer1
-            Player testPlayer1 = new Player(1,"test1","token",0,0);
-            Player testPlayer2 = new Player(2,"test2","token",0,0);
+            Player testPlayer1 = new Player(1,"test1","token",0,0,0,0);
+            Player testPlayer2 = new Player(2,"test2","token",0,0,0,0);
             List<Card> deck1 = new List<Card>();
             List<Card> deck2 = new List<Card>();
             deck1.Add(new Card(1, CardType.Monster, MonsterType.Goblin, Element.Normal, "testGoblin", 99999));
@@ -43,8 +43,8 @@ namespace MTCGPP_Test
         {
             //arrange
             //manually set Player with same card, to force draw
-            Player testPlayer1 = new Player(1,"test1","token",0,0);
-            Player testPlayer2 = new Player(2,"test2","token",0,0);
+            Player testPlayer1 = new Player(1,"test1","token",0,0,0,0);
+            Player testPlayer2 = new Player(2,"test2","token",0,0,0,0);
             List<Card> deck1 = new List<Card>();
             List<Card> deck2 = new List<Card>();
             deck1.Add(new Card(1, CardType.Monster, MonsterType.Goblin, Element.Normal, "testGoblin", 99999));
@@ -68,8 +68,8 @@ namespace MTCGPP_Test
         {
             //arrange
             //Player combat with 4 cards each, winner should have all 8 cards in the end
-            Player testPlayer1 = new Player(1, "test1", "token", 0, 0);
-            Player testPlayer2 = new Player(2, "test2", "token", 0, 0);
+            Player testPlayer1 = new Player(1, "test1", "token", 0, 0,0,0);
+            Player testPlayer2 = new Player(2, "test2", "token", 0, 0,0,0);
             List<Card> deck1 = new List<Card>();
             List<Card> deck2 = new List<Card>();
             deck1.Add(new Card(1, CardType.Monster, MonsterType.Goblin, Element.Normal, "testGoblin", 1));
@@ -297,8 +297,8 @@ namespace MTCGPP_Test
         {
             //arrange
             //manually set Player with only a single Card in deck, so to guarantee the winner is testPlayer1
-            Player testPlayer1 = new Player(1, "test1", "token", 0, 0);
-            Player testPlayer2 = new Player(2, "test2", "token", 0, 0);
+            Player testPlayer1 = new Player(1, "test1", "token", 0, 0,0,0);
+            Player testPlayer2 = new Player(2, "test2", "token", 0, 0,0,0);
             List<Card> deck1 = new List<Card>();
             List<Card> deck2 = new List<Card>();
             deck1.Add(new Card(1, CardType.Monster, MonsterType.Goblin, Element.Normal, "testGoblin", 99999));
@@ -346,62 +346,106 @@ namespace MTCGPP_Test
             Assert.AreEqual(1000, check);
         }
 
-        /*
         [Test]
-        public void inputTest()
+        public void test_battlelogWin()
         {
             //arrange
-            var stringRdr = new StringReader("testString");
-            Console.SetIn(stringRdr); //puts input into next console
+            //manually set Player with only a single Card in deck, so to guarantee the winner is testPlayer1
+            Player testPlayer1 = new Player(1, "test1", "token", 0, 0, 0, 0);
+            Player testPlayer2 = new Player(2, "test2", "token", 0, 0, 0, 0);
+            List<Card> deck1 = new List<Card>();
+            List<Card> deck2 = new List<Card>();
+            deck1.Add(new Card(1, CardType.Monster, MonsterType.Goblin, Element.Normal, "testGoblin", 99999));
+            deck2.Add(new Card(2, CardType.Monster, MonsterType.Goblin, Element.Normal, "testGoblin2", 1));
+            int winnerID, loserID;
+            List<string> log = new List<string>();
+            List<string> testLog = new List<string>();
+            testLog.Add("\n\n------------------------------------------------");
+            testLog.Add("Round 1 has started!");
+            testLog.Add("test1 has choosen testGoblin");
+            testLog.Add("test2 has choosen testGoblin2");
+            testLog.Add("testGoblin is attacking with an damage value of 99999");
+            testLog.Add("testGoblin2 is attacking with an damage value of 1");
+            testLog.Add("test1 has won this round!");
+            testLog.Add("testGoblin and testGoblin2 have been added to test1's deck!");
+            testLog.Add("testGoblin has gained 1 stack of Exhaustion from the win");
+            testLog.Add("\n\n------------------------------------------------");
+            testLog.Add("test1 has won the whole battle !");
+            testLog.Add("test1 has gained 3 elo points from this win");
+            testLog.Add("test2 has lost 5 elo points from this loss");            
+            testLog.Add("------------------------------------------------");
+
 
             //act
-
+            BattleLogic.fight(deck1, deck2, log, testPlayer1, testPlayer2);
 
             //assert
-
+            Assert.Multiple(() =>
+            {
+                int count = 0;
+                foreach(string txt in log)
+                {
+                    Assert.AreEqual(testLog[count], txt);
+                    count++;
+                }
+            });
         }
-        */
 
-        /*
         [Test]
-        public void moq()
+        public void test_weakness()
         {
-            // Create and configure the mock to return a known value for the property
-            var mock = new Mock<IMockTarget>();
-            mock.SetupGet(x => x.PropertyToMock).Returns("FixedValue");
+            //arrange
+            Card normalCard = new Card(1, CardType.Monster, MonsterType.Goblin, Element.Normal, "testGoblin", 99999);
+            Card fireCard = new Card(1, CardType.Monster, MonsterType.Goblin, Element.Fire, "testGoblin", 99999);
+            Card waterCard = new Card(1, CardType.Monster, MonsterType.Goblin, Element.Water, "testGoblin", 99999);
 
-            // Create an instance of the class to test
-            var sut = new ClassToTest();
+            //act
+            Element weakness1 = Card.getWeakness(normalCard.Element);
+            Element weakness2 = Card.getWeakness(fireCard.Element);
+            Element weakness3 = Card.getWeakness(waterCard.Element);
 
-            // Invoke the method to test, supplying the mocked instance
-            var actualValue = sut.GetPrefixedValue(mock.Object);
+            //assert
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(weakness1, Element.Fire);
+                Assert.AreEqual(weakness2, Element.Water);
+                Assert.AreEqual(weakness3, Element.Normal);
 
-            // Validate that the calculated value is correct
-            Assert.AreEqual("Prefixed:FixedValue", actualValue);
-
-            // Depending on what your method does, the mock can then be interrogated to
-            // validate that the property getter was called.  In this instance, it's
-            // unnecessary since we're validating it via the calculated value.
-            mock.VerifyGet(x => x.PropertyToMock);
+            });
         }
-        */
 
-        /*
         [Test]
-        public void moq()
+        public void test_chooseCoinsTrade()
         {
-            // Create the mock
-            var mock = new Mock<Card>();
+            //arrange
+            int? coin = null;
+            using (var sr = new StringReader("50"))
+            {
+                Console.SetIn(sr);
 
-            // Configure the mock to do something
-            mock.SetupGet(x => x.d).Returns("FixedValue");
+                //act
+                coin = Trade.chooseCoinForTrade();
 
-            // Demonstrate that the configuration works
-            Assert.AreEqual("FixedValue", mock.Object.AuthToken);
-
-            // Verify that the mock was invoked
-            mock.VerifyGet(x => x.AuthToken);
+                //assert
+                Assert.AreEqual(coin, 50);
+            }
         }
-        */
+
+        [Test]
+        public void test_chooseCoinsTradeReturnNull()
+        {
+            //arrange
+            int? coin = null;
+            using (var sr = new StringReader("x"))
+            {
+                Console.SetIn(sr);
+
+                //act
+                coin = Trade.chooseCoinForTrade();
+
+                //assert
+                Assert.AreEqual(coin, null);
+            }
+        }
     }
 }

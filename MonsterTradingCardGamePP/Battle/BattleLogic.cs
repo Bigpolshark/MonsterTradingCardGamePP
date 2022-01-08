@@ -79,6 +79,8 @@ namespace MonsterTradingCardGamePP
                     Console.ForegroundColor = ConsoleColor.Green;
                     log.Add($"\n\n------------------------------------------------");
                     log.Add($"{player2.Username} has won the whole battle !");
+                    log.Add($"{player2.Username} has gained 3 elo points from this win");
+                    log.Add($"{player1.Username} has lost 5 elo points from this loss");
                     log.Add($"------------------------------------------------");
                     Console.ResetColor();
                     //elo noch machen
@@ -89,6 +91,8 @@ namespace MonsterTradingCardGamePP
                     Console.ForegroundColor = ConsoleColor.Green;
                     log.Add($"\n\n------------------------------------------------");
                     log.Add($"{player1.Username} has won the whole battle !");
+                    log.Add($"{player1.Username} has gained 3 elo points from this win");
+                    log.Add($"{player2.Username} has lost 5 elo points from this loss");
                     log.Add($"------------------------------------------------");
                     Console.ResetColor();
                     //elo noch machen
