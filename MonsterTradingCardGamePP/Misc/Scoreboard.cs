@@ -34,21 +34,32 @@ namespace MonsterTradingCardGamePP.Misc
 
         private static void printScoreboardHeader()
         {
-            Console.WriteLine("Rank Player              Elo Winrate TotalGames");
+            Console.WriteLine("Rank Player              Elo   Winrate TotalGames");
         }
 
         private static void printPlayerScore(Player player, int rank, Player currentPlayer)
         {
-            double winrateCalc = (double)player.Wins / (double)player.Games * (double)100;
-            winrateCalc = Math.Round(winrateCalc, 2);
+            double winrateCalc;
+            string winrate;
 
-            string winrate = winrateCalc.ToString();
+            if (player.Games == 0)
+            {
+                winrate = "--";
+            }
+            else
+            {
+                winrateCalc = (double)player.Wins / (double)player.Games * (double)100;
+                winrateCalc = Math.Round(winrateCalc, 2);
+                winrate = winrateCalc.ToString();
+            }
+
+
             winrate += '%';
 
             if (player.UserID == currentPlayer.UserID)
                 Console.ForegroundColor = ConsoleColor.Green;
 
-            Console.WriteLine($"{rank.ToString().PadRight(5, ' ')}{player.Username.ToString().PadRight(20, ' ')}{player.Elo.ToString().PadRight(4, ' ')}{winrate.PadRight(8, ' ')}{player.Games}");
+            Console.WriteLine($"{rank.ToString().PadRight(5, ' ')}{player.Username.ToString().PadRight(20, ' ')}{player.Elo.ToString().PadRight(6, ' ')}{winrate.PadRight(8, ' ')}{player.Games}");
 
             if (player.UserID == currentPlayer.UserID)
                 Console.ResetColor();

@@ -1,0 +1,16 @@
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (8, 4);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (8, 18);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (1, 19);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (8, 11);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (1, 21);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (8, 22);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (9, 26);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (9, 18);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (9, 5);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (9, 10);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (6, 18);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (6, 25);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (6, 4);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (6, 12);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (1, 27);
+INSERT INTO public.playerdeck (playerid, cardid) VALUES (1, 12);

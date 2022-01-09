@@ -21,9 +21,6 @@ namespace MonsterTradingCardGamePP.Database
         {
             string tokenByUserID = getToken(Program.userID);
 
-            Console.WriteLine(Program.token);
-            Console.WriteLine(tokenByUserID);
-
             if (Program.token != tokenByUserID)
             {
                 Output.errorOutputCustom("Alarm! User Token stimmt nicht mit der Datenbank ueberein!\nDas Programm wird aus Sicherheitsgründen beendet!");
