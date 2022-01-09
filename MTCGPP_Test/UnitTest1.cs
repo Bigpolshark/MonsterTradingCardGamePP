@@ -357,7 +357,6 @@ namespace MTCGPP_Test
             List<Card> deck2 = new List<Card>();
             deck1.Add(new Card(1, CardType.Monster, MonsterType.Goblin, Element.Normal, "testGoblin", 99999));
             deck2.Add(new Card(2, CardType.Monster, MonsterType.Goblin, Element.Normal, "testGoblin2", 1));
-            int winnerID, loserID;
             List<string> log = new List<string>();
             List<string> testLog = new List<string>();
             testLog.Add("\n\n------------------------------------------------");

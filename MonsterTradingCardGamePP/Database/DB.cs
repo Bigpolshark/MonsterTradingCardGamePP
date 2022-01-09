@@ -14,24 +14,62 @@ namespace MonsterTradingCardGamePP.Database
     {
         //as singleton
         private static DB Instance = new DB();
-        private NpgsqlConnection Connection;
+        private static NpgsqlConnection Connection;
         private RNG randomDB = RNG.getInstance();
 
         public static DB getInstance()
         {
+            string tokenByUserID = getToken(Program.userID);
+
+            Console.WriteLine(Program.token);
+            Console.WriteLine(tokenByUserID);
+
+            if (Program.token != tokenByUserID)
+            {
+                Output.errorOutputCustom("Alarm! User Token stimmt nicht mit der Datenbank ueberein!\nDas Programm wird aus Sicherheitsgründen beendet!");
+                Output.confirm();
+                Environment.Exit(0);
+            }
+
             return Instance;
         }
-        private void Connect()
+
+        public static DB getInstanceWithoutToken()
+        {
+            return Instance;
+        }
+
+        private static void Connect()
         {
             Connection = new NpgsqlConnection("Host=localhost;Username=postgres;Password=;Database=postgres");
             Connection.Open();
         }
 
-        private void Disconnect()
+        private static void Disconnect()
         {
             Connection.Close();
         }
 
+        public static string getToken(int userID)
+        {
+            Connect();
+            using (var sql = new NpgsqlCommand("SELECT * FROM player WHERE id = @uID", Connection))
+            {
+                sql.Parameters.AddWithValue("uID", userID);
+                NpgsqlDataReader reader = sql.ExecuteReader();
+
+                string token = null;
+
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    token = reader["authtoken"].ToString();
+                }
+
+                Disconnect();
+                return token;
+            }
+        }
         public Player AddUser(string username, string password)
         {
             if (checkUsername(username))

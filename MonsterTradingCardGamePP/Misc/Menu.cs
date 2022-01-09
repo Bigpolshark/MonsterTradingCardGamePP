@@ -46,6 +46,9 @@ namespace MonsterTradingCardGamePP
                 }
             }
 
+            Program.token = currentPlayer.AuthToken;
+            Program.userID = currentPlayer.UserID;
+
             input = "";
             while (input != "7")
             {

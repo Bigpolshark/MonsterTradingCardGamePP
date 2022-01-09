@@ -51,7 +51,7 @@ namespace MonsterTradingCardGamePP
             string password = writePassword();
 
             Player tempPlayer;
-            DB database = DB.getInstance();
+            DB database = DB.getInstanceWithoutToken();
 
             if((tempPlayer = database.login(username, password)) == null)
             {
@@ -88,7 +88,7 @@ namespace MonsterTradingCardGamePP
             }
 
             Player tempPlayer;
-            DB database = DB.getInstance();
+            DB database = DB.getInstanceWithoutToken();
 
             if((tempPlayer = database.AddUser(username, password)) == null)
             {
