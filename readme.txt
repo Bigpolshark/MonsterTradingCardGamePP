@@ -1,3 +1,5 @@
+GitHub Link: https://github.com/Bigpolshark/MonsterTradingCardGamePP
+
 Im Ordner "SQL Files for Database" befinden sich die benötigten SQL Statements um die Datenbanktabellen zu erstellen. 
 Zusätzlich sind einzelne Files mit Dummy-Daten für die einzelnen Tabellen gegeben.
 
