@@ -46,8 +46,8 @@ create table playerstack
         constraint playercards_cards_cardid_fk
             references cards
             on delete cascade,
-    number	serial
-        constraint trades_pk
+    number  serial
+        constraint playerstack_pk
             primary key
 );
 
