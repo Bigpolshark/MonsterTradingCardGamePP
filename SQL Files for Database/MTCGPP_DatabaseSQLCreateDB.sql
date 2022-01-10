@@ -48,7 +48,7 @@ create table playerstack
             on delete cascade,
     number	serial
         constraint trades_pk
-            primary key,
+            primary key
 );
 
 alter table playerstack
