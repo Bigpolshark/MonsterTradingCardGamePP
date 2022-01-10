@@ -1,0 +1,91 @@
+Protokoll für MonsterTradingCardGamePP - Patrick Polley
+
+-------------------------------------------------------
+Technical Steps:
+
+Durch den späten Projektstart (Dezember) konnte direkt mit der Datenbank angefangen werden. 
+Diese wurde Schrittweise erweitert, dadurch konnten die erstellten Funktionen direkt mit der Datenbank getestet werden und mussten 
+nachträglich nicht mehr umgeschrieben werden
+
+Als erstes wurde die User Funktionalität im Bezug zu Login/Register implementiert.
+Bei der Registrierung wird für jeden User ein AuthToken erstellt, welcher bei jedem Datenbankaufruf (DB.getInstance()) überprüft wird 
+Nachdem ein User erstellt werden konnte, wurden die Karten manuell in die Datenbank eingefügt. Es wurde für jede MonsterType/Element Kombination
+eine Karte erstellt. Und für jede Spell/Element Kombination 2 Spells.
+Mit den erstellten Karten konnte der Stack und das Deck, in Kombination mit dem Shop implementiert werden.
+Im Shop kann ein User 5 coins gegen 4 random ausgewählte Karten eintauschen (können auch duplicated sein). 
+Die random Karten werden aus einer List<Card> ausgewählt, welche zum Programmstart mit allen Karten aus der Datenbank befüllt wird
+Im User Stack sind mehrere Kopien einer Karte erlaubt (für Trading z.B.)
+Im User Deck hingegen ist nur eine Kopie pro Karte erlaubt, damit ein User nicht ein Deck mit nur der "stärksten" Karte verwenden kann
+
+Als nächstes wurde die gesamte BattleLogic und Vorbereitung für das Battle implementiert. Als erstes werden aus der Datenbank alle Spieler
+ermittelt, welche ein vollwertiges Deck besitzen (genau 4 Karten im Deck). Diese User werden dem derzeitig angemeldeten User angezeigt
+und anschließend wird zufällig einer für das Battle ausgewählt.
+Vor dem Kampf werden mithilfe eines Copy-Constructors die Decks der beiden User kopiert, und anschließend an die BattleLogic weitergegeben.
+
+Hier findet der Kampf statt. Es werden die Damage Werte der beiden Karten genommen, überprüft ob eine der beiden Karten ein Spell ist (
+um die überprüfen ob die Elemente eine Rolle spielen) und der Schaden berechnet. Falls eine der beiden Karten eine MonsterKarte ist, kommt
+das Mandatory Unique Feature - Exhaustion - zum Einsatz. Hier wird überprüft wie viele Stacks an Exhaustion die Monster Karte besitzt, die Anzahl wird
+dann mit der Gegner Karte vergliechen (Spells haben immer 0 Exhaustion und können keine dazu bekommen). Für jeden Stack Exhaustion, den die Karte
+mehr hat, als der Gegner, wird der Schaden der Karte um 20% reduziert. Jedes mal wenn ein Monster einen Kampf gewinnt, bekommt dieses einen Stack
+Exhaustion für den Rest des Battles (auch wenn die Karte das Deck wechselt). Es wurden mehrere Variation dieser Mechanik getestet (Verlierer bekommt
+Stack; Stacks debuffen immer (nicht nur im Vergleich zu den Gegner Stacks); usw.), nach mehreren tests stellte sich heraus, das die das game 
+am ausgeglichensten macht.
+
+Nach der Schadensberechnung werden beide Karten und der jeweils berechnete Schaden noch an die checkSpecial() Funktion übergeben. Dort werden 
+die in der Angabe erwähnten Sonderfälle berücksichtigt (WaterSpell vs Knight, etc.). Bei Immunität wird der Schaden auf 0 gesetzt, im Falle des Instant-
+Kills wird der Schaden auf 99999 gesetzt.
+
+Am Ende der jeweiligen Runde werden die beiden Schadenswerte verglichen, und der gewinnende User bekommt beide im Kampf genutzen Karten in sein Deck.
+Falls die Karte eine Monster Karte war, wird die Exhaustion um 1 erhöht. 
+
+Daswird so lange wiederholt, bis ein User am Ende keine Karten mehr im Deck hat. Falls der Kampf 100 Runden dauert, wird ein Unentschieden deklariert.
+Alle Ereignisse des Kampfes werden in eine List<string> gespeichert (log), und am Ende des Kampfes ausgegeben.
+Nach dem Kampf wird die Elo der Spieler verändert, und die Stats "games" und "wins" erhöht. Dies wurde jedoch nicht direkt implementiert, sondern
+erst gegen Ende (siehe unten).
+
+Nach der gesamten Battle Funktion, wurde das Trading implementiert. Hier ist es möglich eine Karte gegen eine Karte mit bestimmten Typ/Schaden 
+anzubieten, oder einen fixen coinprice. Eine Karte die gerade zum Trade angeboten wird, wird aus dem User Stack entfernt, und in die Trade 
+Datenbanktabelle eingeführt. Einem User ist es jedereit möglich den Trade zurückzuziehen.
+
+Am Ende wurde eine Scoreboard hinzugefügt (User geordnet nach Elo, + Winrate und Game count) und die Elo veränderung nach dem Battle ergänzt
+
+-------------------------------------------------------
+Unit Tests:
+
+Bei den Unit Tests wurden hauptsächlich Funktionen, die im Zusammenhäng zur Battle-Funktion stehen, getested.
+Genauer wurden zum Battle getestet:
+- Die einzelnen in der Angabe spezifizierten "Specialties"
+- Winner / Draw
+- Schadenskalkulation bei Monstern/Spells und mit Elementen
+- Das Unique Feature "Exhaustion"
+- Die Ausgabe des Battle Logs
+- Ob das "swappen" der Karten während des Battles funktioniert (Ein User muss am Ende 8 Karten im Deck haben)
+
+Zusätzlich wurde noch die Auswahl Funktion für das Monster/Coins in der Trade Funktion überprüft, und die Rückgabe der RNG Funktion.
+ 
+Für die Unit Tests wurde sich auf die Battle-Funktionen konzentriert, da diese am wichtigsten erscheinen, 
+und am genauesten in der Angabe spezifiziert sind
+
+-------------------------------------------------------
+Time Spent:
+
+16.12: Projektstart(Card Class, Player Class?,  SpecialRules for Battle) - 5 Stunden 
+17.12: DB aufsetzen und testen, Fertige Karten in DB speichern, Login und Registrieren - 6 Stunden
+18.12: Shop implementiert, Stack anzeigen, Deck verwalten - 6 Stunden
+19.12: Refactoring Allgemein, Battle vs Random Opponent, Battle Logic(60%) - 3 Stunden
+20.12: Battle Logic(), Bug fixing - 2 Stunden
+
+02.01: Trade (WIP), extending Database - 5 Stunden
+05.01: Unit Tests, Trading cont.  - 5 Stunden
+06.01: Finish Trading.  - 2 Stunden
+07.01: Scoreboard, Elo, Unit Test cont.  - 3 Stunden
+08.01: Add Token check on every DB call after lohin.  - 0.5 Stunden
+09.01: Protocol, Export DB  - 3.5 Stunden
+
+Gesamtzeit: ca. 41 Stunden
+
+-------------------------------------------------------
+GitHub-Link:
+https://github.com/Bigpolshark/MonsterTradingCardGamePP
+
+ 
